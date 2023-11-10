@@ -6,22 +6,58 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <ImageButton
+        android:id="@+id/previousButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_below="@+id/textview"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="120dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Previous Day"
+        android:src="@drawable/baseline_keyboard_arrow_left_24" />
+
+    <ImageButton
+        android:id="@+id/nextButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_below="@+id/textview"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="120dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Next Day"
+        android:src="@drawable/baseline_keyboard_arrow_right_24" />
+
+    <ImageView
+        android:id="@+id/calendarImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_calendar_today_24"
+        android:contentDescription="Calendar Icon"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="15dp"/>
+
+    <TextView
         android:id="@+id/textview"
-        android:text="To Do Tasks"
-        android:textSize="32sp"
-        android:textColor="#000"
-        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:text="Data"
+        android:textColor="#000"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/recyclerview"
         android:layout_below="@id/textview"
-        android:nestedScrollingEnabled="true"/>
+        android:layout_marginTop="32dp"
+        android:nestedScrollingEnabled="true" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
