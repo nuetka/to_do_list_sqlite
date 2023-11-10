@@ -12,7 +12,9 @@ import androidx.annotation.Nullable;
 import com.example.todolist.Model.ToDoModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
 
@@ -69,14 +71,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public List<ToDoModel> getAllTasks(){
-
         db = this.getWritableDatabase();
         Cursor cursor = null;
         List<ToDoModel> modelList = new ArrayList<>();
-
         db.beginTransaction();
         try {
-            cursor = db.query(TABLE_NAME , null , null , null , null , null , null);
+            String sortOrder = "CASE WHEN " + COL_3 + " = 1 THEN 0 ELSE 1 END, " + COL_3;
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " ORDER BY " + sortOrder, null);
             if (cursor !=null){
                 if (cursor.moveToFirst()){
                     do {
@@ -85,7 +86,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         task.setTask(cursor.getString(cursor.getColumnIndex(COL_2)));
                         task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         modelList.add(task);
-
                     }while (cursor.moveToNext());
                 }
             }

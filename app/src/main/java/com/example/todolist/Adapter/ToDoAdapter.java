@@ -1,5 +1,6 @@
 package com.example.todolist.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -52,6 +53,8 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
                     myDB.updateStatus(item.getId() , 0);
             }
         });
+
+
     }
 
     public boolean toBoolean(int num){
@@ -62,6 +65,7 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
         return activity;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setTasks(List<ToDoModel> mList){
         this.mList = mList;
         notifyDataSetChanged();
