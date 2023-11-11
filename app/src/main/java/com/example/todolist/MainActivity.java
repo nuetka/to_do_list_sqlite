@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         dateTextView = (TextView) findViewById(R.id.textview);
         previousButton = (ImageButton) findViewById(R.id.previousButton);
         nextButton = (ImageButton) findViewById(R.id.nextButton);
@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
                 updateDateTextView();
             }
         });
-
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,15 +74,12 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
             }
         });
 
-
         calendarImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new DatePickerDialog(MainActivity.this, date, selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
-
-
 
         mRecyclerview = findViewById(R.id.recyclerview);
         fab = findViewById(R.id.fab);
@@ -107,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         });
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerViewTouchHelper(adapter));
         itemTouchHelper.attachToRecyclerView(mRecyclerview);
+
     }
 
     private void updateDateTextView() {
@@ -141,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
     };
 
 
-
     @Override
     public void onDialogClose(DialogInterface dialogInterface) {
         mList = myDB.getAllTasks();
@@ -149,4 +145,5 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         adapter.setTasks(mList);
         adapter.notifyDataSetChanged();
     }
+
 }

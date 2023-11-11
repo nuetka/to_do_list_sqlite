@@ -18,7 +18,10 @@ import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.R;
 import com.example.todolist.Utils.DataBaseHelper;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> {
 
@@ -26,11 +29,10 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     private MainActivity activity;
     private DataBaseHelper myDB;
 
-    public ToDoAdapter(DataBaseHelper myDB , MainActivity activity){
+    public ToDoAdapter(DataBaseHelper myDB , MainActivity activity) {
         this.activity = activity;
         this.myDB = myDB;
     }
-
 
     @NonNull
     @Override
@@ -42,19 +44,25 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         final ToDoModel item = mList.get(position);
+        holder.mCheckBox.setOnCheckedChangeListener(null); // detach the listener
         holder.mCheckBox.setText(item.getTask());
         holder.mCheckBox.setChecked(toBoolean(item.getStatus()));
+
+        // Then attach the listener
         holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
-                    myDB.updateStatus(item.getId() , 1);
-                }else
-                    myDB.updateStatus(item.getId() , 0);
+                if(isChecked){
+                    myDB.updateStatus(item.getId(), 1);
+                } else {
+                    myDB.updateStatus(item.getId(), 0);
+                }
+
+                mList = myDB.getAllTasks();
+                Collections.reverse(mList);
+                setTasks(mList);
             }
         });
-
-
     }
 
     public boolean toBoolean(int num){
