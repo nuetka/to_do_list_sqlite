@@ -42,7 +42,7 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
         final ToDoModel item = mList.get(position);
         holder.mCheckBox.setOnCheckedChangeListener(null); // detach the listener
         holder.mCheckBox.setText(item.getTask());
@@ -54,13 +54,17 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
                     myDB.updateStatus(item.getId(), 1);
+                    mList.get(position).setStatus(1);
+
                 } else {
                     myDB.updateStatus(item.getId(), 0);
+                    mList.get(position).setStatus(0);
                 }
-
-                mList = myDB.getAllTasks();
-                Collections.reverse(mList);
-                setTasks(mList);
+                //mList = myDB.getAllTasks();
+                //Collections.reverse(mList);
+                setTasks(mList.stream()
+                        .sorted(Comparator.comparing(ToDoModel::getStatus))
+                        .collect(Collectors.toList()));
             }
         });
     }

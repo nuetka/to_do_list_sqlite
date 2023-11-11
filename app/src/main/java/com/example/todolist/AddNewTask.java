@@ -1,16 +1,19 @@
 package com.example.todolist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +31,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
     private Button mSaveButton;
 
     private DataBaseHelper myDb;
+    private OnDateRequestListener dateRequestListener;
 
     public static AddNewTask newInstance(){
         return new AddNewTask();
@@ -44,7 +48,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         mEditText = view.findViewById(R.id.edittext);
         mSaveButton = view.findViewById(R.id.button_save);
 
@@ -97,7 +100,14 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     ToDoModel item = new ToDoModel();
                     item.setTask(text);
                     item.setStatus(0);
+
+                    String dateText;
+                    dateText = dateRequestListener.onRequestDate();
+                    item.setDate(dateText);
+
+
                     myDb.insertTask(item);
+
                 }
                 dismiss();
 
@@ -111,6 +121,21 @@ public class AddNewTask extends BottomSheetDialogFragment {
         Activity activity = getActivity();
         if (activity instanceof OnDialogCloseListener){
             ((OnDialogCloseListener)activity).onDialogClose(dialog);
+        }
+    }
+    public interface OnDateRequestListener {
+        String onRequestDate();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            dateRequestListener = (OnDateRequestListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnDateRequestListener");
         }
     }
 }

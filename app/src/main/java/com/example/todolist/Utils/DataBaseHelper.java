@@ -33,7 +33,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(ID INTEGER PRIMARY KEY AUTOINCREMENT , TASK TEXT , STATUS INTEGER)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(ID INTEGER PRIMARY KEY AUTOINCREMENT , TASK TEXT , STATUS INTEGER, DATE TEXT)");
     }
 
     @Override
@@ -47,6 +47,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL_2 , model.getTask());
         values.put(COL_3 , 0);
+        values.put("DATE", model.getDate()); // <=== New line
         db.insert(TABLE_NAME , null , values);
     }
 
@@ -70,14 +71,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public List<ToDoModel> getAllTasks(){
+    public List<ToDoModel> getAllTasks(String date){
         db = this.getWritableDatabase();
         Cursor cursor = null;
         List<ToDoModel> modelList = new ArrayList<>();
         db.beginTransaction();
         try {
             String sortOrder = "CASE WHEN " + COL_3 + " = 1 THEN 0 ELSE 1 END, " + COL_3;
-            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " ORDER BY " + sortOrder, null);
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE DATE = ? ORDER BY " + sortOrder, new String[]{date});
             if (cursor !=null){
                 if (cursor.moveToFirst()){
                     do {
@@ -85,6 +86,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         task.setId(cursor.getInt(cursor.getColumnIndex(COL_1)));
                         task.setTask(cursor.getString(cursor.getColumnIndex(COL_2)));
                         task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
+                        task.setDate(cursor.getString(cursor.getColumnIndex("DATE"))); // Добавили сюда строку
                         modelList.add(task);
                     }while (cursor.moveToNext());
                 }

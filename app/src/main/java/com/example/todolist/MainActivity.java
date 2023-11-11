@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements OnDialogCloseListener {
+public class MainActivity extends AppCompatActivity implements AddNewTask.OnDateRequestListener, OnDialogCloseListener {
 
     private RecyclerView mRecyclerview;
     private FloatingActionButton fab;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
     Calendar selectedDate = Calendar.getInstance();
     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
 
+    String strDate;
     ImageButton previousButton;
     ImageButton nextButton;
 
@@ -56,8 +57,8 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         calendarImage = (ImageView) findViewById(R.id.calendarImage);
 
         // установка текущей даты
-        String currentDate = sdf.format(new Date());
-        dateTextView.setText(currentDate);
+        strDate = sdf.format(new Date());
+        dateTextView.setText(strDate);
 
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         mRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerview.setAdapter(adapter);
 
-        mList = myDB.getAllTasks();
+        mList = myDB.getAllTasks(strDate);
         Collections.reverse(mList);
         adapter.setTasks(mList);
 
@@ -107,16 +108,17 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
     }
 
     private void updateDateTextView() {
-        String selectedDateString = sdf.format(selectedDate.getTime());
-        dateTextView.setText(selectedDateString);
+        strDate = sdf.format(selectedDate.getTime());
+        dateTextView.setText(strDate);
 
         // Check if the selected date is today and set the color of the text accordingly
         Date today = new Date();
-        if(sdf.format(today).equals(selectedDateString)){
+        if(sdf.format(today).equals(strDate)){
             dateTextView.setTextColor(Color.BLACK);
         } else {
             dateTextView.setTextColor(Color.GRAY);
         }
+        refresh();
     }
     DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -124,26 +126,38 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
             selectedDate.set(Calendar.MONTH, monthOfYear);
             selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-            String selectedDateString = sdf.format(selectedDate.getTime());
-            dateTextView.setText(selectedDateString);
+            strDate = sdf.format(selectedDate.getTime());
+            dateTextView.setText(strDate);
 
             // Check if the selected date is today and set the color of the text accordingly
             Date today = new Date();
-            if(sdf.format(today).equals(selectedDateString)){
+            if(sdf.format(today).equals(strDate)){
                 dateTextView.setTextColor(Color.BLACK);
             } else {
                 dateTextView.setTextColor(Color.GRAY);
             }
+            refresh();
         }
     };
 
 
-    @Override
-    public void onDialogClose(DialogInterface dialogInterface) {
-        mList = myDB.getAllTasks();
+    public void refresh(){
+        mList = myDB.getAllTasks(strDate);
         Collections.reverse(mList);
         adapter.setTasks(mList);
         adapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onDialogClose(DialogInterface dialogInterface) {
+        mList = myDB.getAllTasks(strDate);
+        Collections.reverse(mList);
+        adapter.setTasks(mList);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public String onRequestDate() {
+        return dateTextView.getText().toString();
+    }
 }

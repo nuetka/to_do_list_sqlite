@@ -3,6 +3,8 @@ package com.example.todolist.Model;
 public class ToDoModel {
 
     private String task;
+
+    private String date;
     private int id , status;
 
     public String getTask() {
@@ -11,6 +13,14 @@ public class ToDoModel {
 
     public void setTask(String task) {
         this.task = task;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public int getId() {
