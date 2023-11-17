@@ -7,12 +7,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,8 +51,33 @@ public class AddNewTask extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
         mEditText = view.findViewById(R.id.edittext);
         mSaveButton = view.findViewById(R.id.button_save);
-
         myDb = new DataBaseHelper(getActivity());
+
+        //разбираюсь с перелистыванием с доб задачу на событие
+        TextView addTaskTab = view.findViewById(R.id.imagesTextView);
+        TextView addEventTab = view.findViewById(R.id.videosTextView);
+        final TextView priorityText = view.findViewById(R.id.textview);
+        final RadioGroup radioGroup = view.findViewById(R.id.radioGroup);
+
+        addTaskTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Показать текстовое представление приоритета и группу радиокнопок, когда пользователь выбирает "добавление задачи"
+                priorityText.setVisibility(View.VISIBLE);
+                radioGroup.setVisibility(View.VISIBLE);
+            }
+        });
+
+        addEventTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Скрыть текстовое представление приоритета и группу радиокнопок, когда пользователь выбирает "добавление события"
+                priorityText.setVisibility(View.GONE);
+                radioGroup.setVisibility(View.GONE);
+            }
+        });
+
+        //уже другое
 
         boolean isUpdate = false;
 
