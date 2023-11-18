@@ -3,7 +3,6 @@ package com.example.todolist.Model;
 public class ToDoModel {
 
     private String task;
-
     private String date;
     private int id , status;
 

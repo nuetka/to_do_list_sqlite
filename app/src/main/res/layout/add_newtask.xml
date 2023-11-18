@@ -83,9 +83,9 @@
         android:id="@+id/button_save"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_below="@+id/linearLayout2"
+        android:layout_below="@+id/linearLayout4"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="5dp"
         android:backgroundTint="@color/colorPrimary"
@@ -191,6 +191,7 @@
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@+id/radioGroup1"
             android:layout_marginTop="0dp"
+            android:visibility="gone"
             android:orientation="horizontal">
 
             <EditText
@@ -225,7 +226,95 @@
                 android:paddingStart="7dp"
                 android:paddingEnd="7dp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@+id/radioGroup1"
+            android:layout_marginTop="13dp"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/checkbox_monday"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/checkbox_background"
+                android:text="MO"
+                android:textSize="10sp"
+                android:button="@android:color/transparent"
+                android:textAlignment="center" />
+
+            <CheckBox
+                android:id="@+id/checkbox_tuesday"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/checkbox_background"
+                android:text="TU"
+                android:textSize="10sp"
+                android:layout_marginStart="5dp"
+                android:button="@android:color/transparent"
+                android:textAlignment="center" />
+
+            <CheckBox
+                android:id="@+id/checkbox_wednesday"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/checkbox_background"
+                android:text="WE"
+                android:layout_marginStart="5dp"
+                android:textSize="10sp"
+                android:button="@android:color/transparent"
+                android:textAlignment="center" />
+
+            <CheckBox
+                android:id="@+id/checkbox_thursday"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/checkbox_background"
+                android:text="TH"
+                android:layout_marginStart="5dp"
+                android:textSize="10sp"
+                android:button="@android:color/transparent"
+                android:textAlignment="center" />
+
+            <CheckBox
+                android:id="@+id/checkbox_friday"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/checkbox_background"
+                android:text="FR"
+                android:textSize="10sp"
+                android:layout_marginStart="5dp"
+                android:button="@android:color/transparent"
+                android:textAlignment="center" />
+            <CheckBox
+                android:id="@+id/checkbox_saturday"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/checkbox_background"
+                android:text="SA"
+                android:layout_marginStart="5dp"
+                android:textSize="10sp"
+                android:button="@android:color/transparent"
+                android:textAlignment="center" />
+            <CheckBox
+                android:id="@+id/checkbox_sunday"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/checkbox_background"
+                android:text="SU"
+                android:layout_marginStart="5dp"
+                android:textSize="10sp"
+                android:button="@android:color/transparent"
+                android:textAlignment="center" />
+
+        </LinearLayout>
     </RelativeLayout>
+
+
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -403,8 +492,8 @@
         android:id="@+id/button_cancel"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_below="@+id/linearLayout2"
-        android:layout_marginTop="120dp"
+        android:layout_below="@+id/linearLayout4"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="5dp"
         android:layout_toStartOf="@+id/button_save"
