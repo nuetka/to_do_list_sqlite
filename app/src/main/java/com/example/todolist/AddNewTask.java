@@ -1,22 +1,28 @@
 package com.example.todolist;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +31,8 @@ import androidx.fragment.app.Fragment;
 import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import java.util.Calendar;
 
 public class AddNewTask extends BottomSheetDialogFragment {
 
@@ -78,9 +86,158 @@ public class AddNewTask extends BottomSheetDialogFragment {
         final TextView taskTextView = view.findViewById(R.id.imagesTextView);
         final View taskUnder = view.findViewById(R.id.imagesUnderline);
 
+        final ImageView x = view.findViewById(R.id.myImageView);
+        final ImageView x1 = view.findViewById(R.id.myImageView1);
 
 
+        final Button btn = view.findViewById(R.id.from1);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Получение текущего времени.
+                final Calendar c = Calendar.getInstance();
+                int hour = c.get(Calendar.HOUR_OF_DAY);
+                int minute = c.get(Calendar.MINUTE);
 
+                // Создание нового экземпляра TimePickerDialog и отображение его.
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(),
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                // Установка выбранного пользователем времени в EditText.
+                                btn.setText(hourOfDay + ":" + String.format("%02d", minute));
+                                btn.setEnabled(false);
+                                x.setVisibility(View.VISIBLE);
+                            }
+                        }, hour, minute, DateFormat.is24HourFormat(getActivity()));
+                timePickerDialog.show();
+            }
+        });
+
+        x.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btn.setEnabled(true);
+                x.setVisibility(View.GONE);
+                btn.setText("pick a time");
+            }
+
+
+        });
+
+        final Button btn1 = view.findViewById(R.id.from2);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Получение текущего времени.
+                final Calendar c = Calendar.getInstance();
+                int hour = c.get(Calendar.HOUR_OF_DAY);
+                int minute = c.get(Calendar.MINUTE);
+
+                // Создание нового экземпляра TimePickerDialog и отображение его.
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(),
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                // Установка выбранного пользователем времени в EditText.
+                                btn1.setText(hourOfDay + ":" + String.format("%02d", minute));
+                                btn1.setEnabled(false);
+                                x1.setVisibility(View.VISIBLE);
+                            }
+                        }, hour, minute, DateFormat.is24HourFormat(getActivity()));
+                timePickerDialog.show();
+            }
+        });
+
+        x1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btn1.setEnabled(true);
+                x1.setVisibility(View.GONE);
+                btn1.setText("pick a time");
+            }
+
+
+        });
+
+
+        final Button btn_from = view.findViewById(R.id.from);
+        final ImageView x3 = view.findViewById(R.id.myImageView3);
+
+        btn_from.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Получение текущей даты.
+                final Calendar c = Calendar.getInstance();
+                int year = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH);
+                int day = c.get(Calendar.DAY_OF_MONTH);
+
+                // Создание нового экземпляра DatePickerDialog и отображение его.
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                // Установка выбранной пользователем даты на кнопку.
+                                btn_from.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
+                                btn_from.setEnabled(false);
+                                x3.setVisibility(View.VISIBLE);
+                            }
+                        }, year, month, day);
+                datePickerDialog.show();
+            }
+        });
+
+        x3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btn_from.setEnabled(true);
+                x3.setVisibility(View.GONE);
+                btn_from.setText("pick a time");
+            }
+
+
+        });
+
+        final Button btn_to = view.findViewById(R.id.to);
+        final ImageView x4 = view.findViewById(R.id.myImageView4);
+
+        btn_to.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Получение текущей даты.
+                final Calendar c = Calendar.getInstance();
+                int year = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH);
+                int day = c.get(Calendar.DAY_OF_MONTH);
+
+                // Создание нового экземпляра DatePickerDialog и отображение его.
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                // Установка выбранной пользователем даты на кнопку.
+                                btn_to.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
+                                btn_to.setEnabled(false);
+                                x4.setVisibility(View.VISIBLE);
+                            }
+                        }, year, month, day);
+                datePickerDialog.show();
+            }
+        });
+
+        x4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btn_to.setEnabled(true);
+                x4.setVisibility(View.GONE);
+                btn_to.setText("pick a time");
+            }
+
+
+        });
 
 
 

@@ -194,16 +194,26 @@
             android:visibility="gone"
             android:orientation="horizontal">
 
-            <EditText
+            <Button
                 android:id="@+id/from"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:hint="     from     (pick a date)"
-                android:textSize="15sp"
+                android:backgroundTint="@android:color/darker_gray"
                 android:minHeight="48dp"
-                android:paddingStart="7dp"
-                android:paddingEnd="7dp" />
+                android:text="from" />
+
+            <ImageView
+                android:id="@+id/myImageView3"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone"
+                android:layout_marginStart="-30dp"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/x" />
+
 
             <TextView
                 android:id="@+id/dash"
@@ -212,19 +222,28 @@
                 android:text="—"
                 android:textColor="#000"
                 android:textSize="15sp"
+                android:layout_marginStart="3dp"
                 android:textStyle="bold"
                 android:visibility="visible" />
 
-            <EditText
+            <Button
                 android:id="@+id/to"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:hint="      to      (pick a date)"
-                android:textSize="15sp"
+                android:layout_marginStart="3dp"
+                android:backgroundTint="@android:color/darker_gray"
                 android:minHeight="48dp"
-                android:paddingStart="7dp"
-                android:paddingEnd="7dp" />
+                android:text="to" />
+            <ImageView
+                android:id="@+id/myImageView4"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:clickable="true"
+                android:layout_marginTop="10dp"
+                android:focusable="true"
+                android:visibility="gone"
+                android:layout_marginStart="-30dp"
+                android:src="@drawable/x" />
         </LinearLayout>
 
         <LinearLayout
@@ -363,14 +382,26 @@
             android:textStyle="bold"
             android:visibility="visible" />
 
-        <EditText
+        <Button
             android:id="@+id/from1"
-            android:layout_width="100dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:hint="pick a time"
             android:layout_marginStart="10dp"
+            android:backgroundTint="@android:color/darker_gray"
             android:minHeight="48dp"
-            android:paddingEnd="7dp" />
+            android:text="pick a time" />
+
+
+        <ImageView
+            android:id="@+id/myImageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:clickable="true"
+            android:layout_marginTop="10dp"
+            android:focusable="true"
+            android:layout_marginStart="-40dp"
+            android:visibility="gone"
+            android:src="@drawable/x" />
 
         <CheckBox
             android:id="@+id/notificationCheckbox"
@@ -402,14 +433,25 @@
             android:textStyle="bold"
             android:visibility="visible" />
 
-        <EditText
+        <Button
             android:id="@+id/from2"
-            android:layout_width="100dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:hint="pick a time"
             android:layout_marginStart="10dp"
+            android:backgroundTint="@android:color/darker_gray"
             android:minHeight="48dp"
-            android:paddingEnd="7dp" />
+            android:text="pick a time" />
+
+        <ImageView
+            android:id="@+id/myImageView1"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:clickable="true"
+            android:layout_marginTop="10dp"
+            android:focusable="true"
+            android:layout_marginStart="-40dp"
+            android:visibility="gone"
+            android:src="@drawable/x" />
 
         <CheckBox
             android:id="@+id/notificationCheckbox1"
