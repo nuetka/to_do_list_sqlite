@@ -479,27 +479,60 @@ public class AddNewTask extends BottomSheetDialogFragment {
         builder.show();
     }
 
+    public class CategoryAdapter extends ArrayAdapter<CategoryModel> {
+        private boolean isDropdownOpened = false;
+
+        public CategoryAdapter(Context context, List<CategoryModel> categories) {
+            super(context, android.R.layout.simple_spinner_item, categories);
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return initItemView(position, convertView, parent, false);
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            isDropdownOpened = true;
+            return initItemView(position, convertView, parent, true);
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
+            isDropdownOpened = false;
+        }
+
+        private View initItemView(int position, View convertView, ViewGroup parent, boolean isDropDown) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
+            }
+            TextView textView = (TextView) convertView;
+            CategoryModel item = getItem(position);
+            if (item != null) {
+                String text = item.getName();
+                if (isDropDown && position == 0 && isNewCategoryAdded) {
+                    text += "\uD83D\uDD8D"; // Добавляем карандаш, если это первая категория в выпадающем списке
+                }
+                textView.setText(text);
+            }
+            return convertView;
+        }
+    }
+
     private void updateCategorySpinner() {
         categories = myDb.getAllCategories(getContext());
 
         if (isNewCategoryAdded) {
-
             // Сортируем список CategoryModel по убыванию id
             Collections.sort(categories, new Comparator<CategoryModel>() {
                 @Override
                 public int compare(CategoryModel category1, CategoryModel category2) {
-                    // Сравниваем id в обратном порядке (убывание)
                     return Integer.compare(category2.getId(), category1.getId());
                 }
-
-
             });
-            categories.get(0).setName(categories.get(0).getName()+"\uD83D\uDD8D");// тут код смайлика карандаша
-
-
-        }
-        else {
-
+        } else {
             // Добавляем пустую категорию
             CategoryModel emptyCategory = new CategoryModel();
             emptyCategory.setName("+");
@@ -507,10 +540,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
             categories.add(emptyCategory);
         }
 
-
-        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, categories);
-        categorySpinner.setAdapter(adapter);
-
+        // Используем пользовательский адаптер
+        CategoryAdapter customAdapter = new CategoryAdapter(getActivity(), categories);
+        categorySpinner.setAdapter(customAdapter);
     }
     private void showEditCategoryDialog(CategoryModel category) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
