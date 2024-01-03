@@ -64,6 +64,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
     private OnDateRequestListener dateRequestListener;
 
     private boolean isNewCategoryAdded = false;
+    private boolean isMustEdit= false;
 
     public static AddNewTask newInstance(){
         return new AddNewTask();
@@ -96,9 +97,14 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (selectedCategory.getId() == -1) {
                     if (!isNewCategoryAdded) {
                         showAddCategoryDialog();
-                    } else {
-                        showEditCategoryDialog(selectedCategory);
+                        isMustEdit=false;
                     }
+                } else if (isMustEdit && isNewCategoryAdded && categories.get(0).getId()==selectedCategory.getId()){
+                    showEditCategoryDialog(selectedCategory);
+                    isMustEdit=false;
+                }
+                else {
+                    isMustEdit=true;
                 }
             }
 
