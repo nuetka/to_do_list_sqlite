@@ -27,6 +27,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static  final String COL_1 = "ID";
     private static  final String COL_2 = "TASK";
     private static  final String COL_3 = "STATUS";
+    private static  final String PR = "PRIORITY";
     private static final String TABLE_CATEGORIES = "categories";
     private static final String COLUMN_CATEGORY_ID = "category_id";
     private static final String COLUMN_CATEGORY_NAME = "category_name";
@@ -43,6 +44,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     + COLUMN_CATEGORY_NAME + " TEXT)");
             // Вставка значений по умолчанию
             ContentValues values = new ContentValues();
+            values.put(COLUMN_CATEGORY_NAME, "нет");
+            db.insert(TABLE_CATEGORIES, null, values);
+
             values.put(COLUMN_CATEGORY_NAME, "Работа");
             db.insert(TABLE_CATEGORIES, null, values);
 
@@ -58,6 +62,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     + COL_1 + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COL_2 + " TEXT,"
                     + COL_3 + " INTEGER,"
+                    + PR + "INTEGER,"
                     + "DATE TEXT,"
                     + COLUMN_CATEGORY_ID + " INTEGER,"
                     + "FOREIGN KEY(" + COLUMN_CATEGORY_ID + ") REFERENCES " + TABLE_CATEGORIES + "(" + COL_1 + "))");
@@ -75,6 +80,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL_2 , model.getTask());
         values.put(COL_3 , 0);
+        values.put(PR, model.getPriority());
         values.put("DATE", model.getDate()); // <=== New line
         values.put(COLUMN_CATEGORY_ID, model.getCategoryId());
         db.insert(TABLE_NAME , null , values);
@@ -194,6 +200,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         task.setId(cursor.getInt(cursor.getColumnIndex(COL_1)));
                         task.setTask(cursor.getString(cursor.getColumnIndex(COL_2)));
                         task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
+                        task.setPriority(cursor.getInt(cursor.getColumnIndex(PR)));
                         task.setDate(cursor.getString(cursor.getColumnIndex("DATE"))); // Добавили сюда строку
                         modelList.add(task);
                     }while (cursor.moveToNext());

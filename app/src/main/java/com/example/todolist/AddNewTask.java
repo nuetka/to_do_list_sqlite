@@ -22,6 +22,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -65,6 +67,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
     private boolean isNewCategoryAdded = false;
     private boolean isMustEdit= false;
+
+    private int priority;
+    private int snoty, enoty;
 
     public static AddNewTask newInstance(){
         return new AddNewTask();
@@ -113,6 +118,33 @@ public class AddNewTask extends BottomSheetDialogFragment {
         });
 
 
+
+
+        CheckBox checkBox = view.findViewById(R.id.notificationCheckbox);
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    snoty=1;
+                } else {
+                    snoty=0;
+
+                }
+            }
+        });
+
+        CheckBox checkBox1 = view.findViewById(R.id.notificationCheckbox1);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    enoty=1;
+                } else {
+                   enoty=0;
+                }
+            }
+        });
 
         //разбираюсь с перелистыванием с доб задачу на событие
         TextView addTaskTab = view.findViewById(R.id.imagesTextView);
@@ -264,8 +296,10 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton1) {
                     radioButton1.setChecked(false);
                     lastCheckedId = -1;
+                    priority=0;
                 } else {
                     lastCheckedId = R.id.radioButton1;
+                    priority=1;
                 }
             }
         });
@@ -276,8 +310,10 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton2) {
                     radioButton2.setChecked(false);
                     lastCheckedId = -1;
+                    priority=0;
                 } else {
                     lastCheckedId = R.id.radioButton2;
+                    priority=2;
                 }
             }
         });
@@ -288,8 +324,10 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton3) {
                     radioButton3.setChecked(false);
                     lastCheckedId = -1;
+                    priority=0;
                 } else {
                     lastCheckedId = R.id.radioButton3;
+                    priority=3;
                 }
             }
         });
@@ -301,8 +339,10 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton4) {
                     radioButton4.setChecked(false);
                     lastCheckedId = -1;
+                    priority=0;
                 } else {
                     lastCheckedId = R.id.radioButton4;
+                    priority=4;
                 }
             }
         });
@@ -314,8 +354,10 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton5) {
                     radioButton5.setChecked(false);
                     lastCheckedId = -1;
+                    priority=0;
                 } else {
                     lastCheckedId = R.id.radioButton5;
+                    priority=5;
                 }
             }
         });
@@ -427,6 +469,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     String dateText;
                     dateText = dateRequestListener.onRequestDate();
                     item.setDate(dateText);
+                    item.setPriority(priority);
+                    item.setSnoty(snoty);
+                    item.setEnoty(enoty);
 
 
                     myDb.insertTask(item);
