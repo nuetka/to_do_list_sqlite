@@ -1,6 +1,7 @@
 package com.example.todolist;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -8,11 +9,18 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -21,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -28,26 +37,33 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.todolist.Model.CategoryModel;
 import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class AddNewTask extends BottomSheetDialogFragment {
 
     public static final String TAG = "AddNewTask";
-
     //widgets
     private EditText mEditText;
     private Button mSaveButton;
+    private Spinner categorySpinner;
+    private ArrayAdapter<CategoryModel> adapter;
+    private List<CategoryModel> categories;
 
     private int lastCheckedId = -1;
-
-    private int lastCheckedId1 = -1;
+    private int is6Checked = 0;
 
     private DataBaseHelper myDb;
     private OnDateRequestListener dateRequestListener;
+
+    private boolean isNewCategoryAdded = false;
 
     public static AddNewTask newInstance(){
         return new AddNewTask();
@@ -65,8 +81,32 @@ public class AddNewTask extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mEditText = view.findViewById(R.id.edittext);
+
         mSaveButton = view.findViewById(R.id.button_save);
+
+
         myDb = new DataBaseHelper(getActivity());
+        categorySpinner = view.findViewById(R.id.categorySpinner);
+        updateCategorySpinner();
+
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                CategoryModel selectedCategory = (CategoryModel) parent.getItemAtPosition(position);
+                if (selectedCategory.getId() == -1) {
+                    if (!isNewCategoryAdded) {
+                        showAddCategoryDialog();
+                    } else {
+                        showEditCategoryDialog(selectedCategory);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+
 
         //разбираюсь с перелистыванием с доб задачу на событие
         TextView addTaskTab = view.findViewById(R.id.imagesTextView);
@@ -75,7 +115,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         final RelativeLayout relativeLayout = view.findViewById(R.id.loy1);
         final LinearLayout linearLayout = view.findViewById(R.id.linear);
-        final LinearLayout linLay = view.findViewById(R.id.linearLayout);
+        final LinearLayout linearForever = view.findViewById(R.id.linearForever);
         final LinearLayout linLay1 = view.findViewById(R.id.linearLayout1);
         final LinearLayout linLay2 = view.findViewById(R.id.linearLayout2);
         final LinearLayout linLay3 = view.findViewById(R.id.linearLayout3);
@@ -161,8 +201,8 @@ public class AddNewTask extends BottomSheetDialogFragment {
         });
 
 
-        final Button btn_from = view.findViewById(R.id.from);
-        final ImageView x3 = view.findViewById(R.id.myImageView3);
+        final Button btn_from = view.findViewById(R.id.forever);
+        final ImageView x3 = view.findViewById(R.id.mIV);
 
         btn_from.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,51 +234,11 @@ public class AddNewTask extends BottomSheetDialogFragment {
             public void onClick(View v) {
                 btn_from.setEnabled(true);
                 x3.setVisibility(View.GONE);
-                btn_from.setText("pick a time");
+                btn_from.setText("forever");
             }
 
 
         });
-
-        final Button btn_to = view.findViewById(R.id.to);
-        final ImageView x4 = view.findViewById(R.id.myImageView4);
-
-        btn_to.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // Получение текущей даты.
-                final Calendar c = Calendar.getInstance();
-                int year = c.get(Calendar.YEAR);
-                int month = c.get(Calendar.MONTH);
-                int day = c.get(Calendar.DAY_OF_MONTH);
-
-                // Создание нового экземпляра DatePickerDialog и отображение его.
-                DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                // Установка выбранной пользователем даты на кнопку.
-                                btn_to.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
-                                btn_to.setEnabled(false);
-                                x4.setVisibility(View.VISIBLE);
-                            }
-                        }, year, month, day);
-                datePickerDialog.show();
-            }
-        });
-
-        x4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btn_to.setEnabled(true);
-                x4.setVisibility(View.GONE);
-                btn_to.setText("pick a time");
-            }
-
-
-        });
-
 
 
         final RadioGroup radioGroup = view.findViewById(R.id.radioGroup);
@@ -248,13 +248,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
         final RadioButton radioButton4 = view.findViewById(R.id.radioButton4);
         final RadioButton radioButton5 = view.findViewById(R.id.radioButton5);
 
-        final RadioGroup radioGroup1 = view.findViewById(R.id.radioGroup1);
         final RadioButton radioButton6 = view.findViewById(R.id.radioButton6);
-        final RadioButton radioButton7 = view.findViewById(R.id.radioButton7);
 
         lastCheckedId = radioGroup.getCheckedRadioButtonId(); // Устанавливает последний выбранный RadioButton
-
-        lastCheckedId1 = radioGroup1.getCheckedRadioButtonId(); // Устанавливает последний выбранный RadioButton
 
         radioButton1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -321,37 +317,19 @@ public class AddNewTask extends BottomSheetDialogFragment {
         radioButton6.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (lastCheckedId1 == R.id.radioButton6) {
+                if (is6Checked==1) {
                     radioButton6.setChecked(false);
                     linearLayout.setVisibility(View.GONE);
-                    radioButton7.setVisibility(View.VISIBLE);
-                    lastCheckedId1 = -1;
+                    linearForever.setVisibility(View.GONE);
+                    is6Checked=0;
                 } else {
-                    lastCheckedId1 = R.id.radioButton6;
+                    radioButton6.setChecked(true);
                     linearLayout.setVisibility(View.VISIBLE);
-                    radioButton7.setVisibility(View.GONE);
+                    linearForever.setVisibility(View.VISIBLE);
+                    is6Checked=1;
                 }
             }
         });
-
-        radioButton7.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (lastCheckedId1 == R.id.radioButton7) {
-                    radioButton7.setChecked(false);
-                    linLay.setVisibility(View.GONE);
-                    radioButton6.setVisibility(View.VISIBLE);
-                    lastCheckedId1 = -1;
-                } else {
-                    lastCheckedId1 = R.id.radioButton7;
-                    linLay.setVisibility(View.VISIBLE);
-                    radioButton6.setVisibility(View.GONE);
-                }
-            }
-        });
-
-
-
 
 
         addTaskTab.setOnClickListener(new View.OnClickListener() {
@@ -477,4 +455,86 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     + " must implement OnDateRequestListener");
         }
     }
+
+
+
+    public void showAddCategoryDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Добавить категорию");
+
+        final EditText input = new EditText(getActivity());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String newCategoryName = input.getText().toString();
+            if (!newCategoryName.isEmpty()) {
+                myDb.insertCategory(newCategoryName);
+                isNewCategoryAdded = true;
+                updateCategorySpinner();
+            }
+        });
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void updateCategorySpinner() {
+        categories = myDb.getAllCategories(getContext());
+
+        if (isNewCategoryAdded) {
+
+            // Сортируем список CategoryModel по убыванию id
+            Collections.sort(categories, new Comparator<CategoryModel>() {
+                @Override
+                public int compare(CategoryModel category1, CategoryModel category2) {
+                    // Сравниваем id в обратном порядке (убывание)
+                    return Integer.compare(category2.getId(), category1.getId());
+                }
+
+
+            });
+            categories.get(0).setName(categories.get(0).getName()+"\uD83D\uDD8D");// тут код смайлика карандаша
+
+
+        }
+        else {
+
+            // Добавляем пустую категорию
+            CategoryModel emptyCategory = new CategoryModel();
+            emptyCategory.setName("+");
+            emptyCategory.setId(-1);
+            categories.add(emptyCategory);
+        }
+
+
+        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, categories);
+        categorySpinner.setAdapter(adapter);
+
+    }
+    private void showEditCategoryDialog(CategoryModel category) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Редактировать категорию");
+
+        final EditText input = new EditText(getActivity());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(category.getName());
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String categoryName = input.getText().toString();
+            if (!categoryName.isEmpty()) {
+                myDb.updateCategoryName(category.getId(), categoryName);
+                updateCategorySpinner();
+            }
+        });
+
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+
+
+
+
 }

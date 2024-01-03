@@ -4,7 +4,15 @@ public class ToDoModel {
 
     private String task;
     private String date;
-    private int id , status;
+    private int id , status, categoryId;
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
 
     public String getTask() {
         return task;
