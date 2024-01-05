@@ -28,13 +28,29 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static  final String COL_2 = "TASK";
     private static  final String COL_3 = "STATUS";
     private static  final String PR = "PRIORITY";
+    private static  final String ROUTINE = "IS_ROUTINE";
+    private static  final String RED = "REPEAT_END_DATE";
+    private static  final String RD = "REPEAT_DAYS";
+    private static  final String SNOTY = "SNOTY";
+    private static  final String ENOTY = "ENOTY";
+
+    private static  final String START = "START";
+    private static  final String END = "END";
+    private static  final String DURATION = "DURATION";
+
     private static final String TABLE_CATEGORIES = "categories";
     private static final String COLUMN_CATEGORY_ID = "category_id";
     private static final String COLUMN_CATEGORY_NAME = "category_name";
 
+    private static final String TABLE_COMPLETED_DATES = "completed_dates";
+    private static final String COL_COMPLETED_1 = "ID";
+    private static final String COL_COMPLETED_2 = "ROUTINE_TASK_ID";
+    private static final String COL_COMPLETED_3 = "COMPLETED_DATE";
+    private static final String COL_COMPLETED_4 = "STATUS";
+
 
     public DataBaseHelper(@Nullable Context context ) {
-        super(context, DATABASE_NAME, null, 2);
+        super(context, DATABASE_NAME, null, 3);
     }
 
     @Override
@@ -62,10 +78,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     + COL_1 + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COL_2 + " TEXT,"
                     + COL_3 + " INTEGER,"
-                    + PR + "INTEGER,"
+                    + PR + " INTEGER,"
                     + "DATE TEXT,"
                     + COLUMN_CATEGORY_ID + " INTEGER,"
+                    + ROUTINE + " INTEGER,"
+                    + RED + " TEXT,"
+                    + RD + " TEXT,"
+                    + SNOTY+" INTEGER,"
+                    + ENOTY + " INTEGER,"
+                    + START + " TEXT,"
+                    + DURATION + " TEXT,"
+                    + END + "TEXT,"
                     + "FOREIGN KEY(" + COLUMN_CATEGORY_ID + ") REFERENCES " + TABLE_CATEGORIES + "(" + COL_1 + "))");
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_COMPLETED_DATES + "("
+                + COL_COMPLETED_1 + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COL_COMPLETED_2 + " INTEGER,"
+                + COL_COMPLETED_3 + " TEXT,"
+                + COL_COMPLETED_4 + " INTEGER,"
+                + "FOREIGN KEY(" + COL_COMPLETED_2 + ") REFERENCES " + TABLE_NAME + "(" + COL_1 + "))");
     }
 
     @Override
@@ -83,7 +114,27 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put(PR, model.getPriority());
         values.put("DATE", model.getDate()); // <=== New line
         values.put(COLUMN_CATEGORY_ID, model.getCategoryId());
-        db.insert(TABLE_NAME , null , values);
+        values.put(ROUTINE, model.getIsRoutine());
+        values.put(SNOTY, model.getSnoty());
+        values.put(ENOTY, model.getEnoty());
+        values.put(START, model.getStart());
+        values.put(END, model.getEnd());
+        values.put(DURATION, model.getDuration());
+
+        long taskId = db.insert(TABLE_NAME, null, values);
+
+        if (model.getIsRoutine()==1) {
+            values.put(RED, model.getRepeatEndDate());
+            values.put(RD, model.getRepeatDays());
+            // Если задача рутинная, добавьте информацию о рутинной задаче в таблицу с прошедшими датами
+            ContentValues completedValues = new ContentValues();
+            completedValues.put(COL_COMPLETED_2, taskId);
+            completedValues.put(COL_COMPLETED_3, model.getDate());
+            completedValues.put(COL_COMPLETED_4, 0); // По умолчанию, задача не выполнена
+
+            db.insert(TABLE_NAME , null , values);
+            db.insert(TABLE_COMPLETED_DATES, null, completedValues);
+        }
     }
 
     public void insertCategory(String categoryName) {
@@ -193,19 +244,39 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         try {
             String sortOrder = "CASE WHEN " + COL_3 + " = 1 THEN 0 ELSE 1 END, " + COL_3;
             cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE DATE = ? ORDER BY " + sortOrder, new String[]{date});
-            if (cursor !=null){
-                if (cursor.moveToFirst()){
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
                     do {
                         ToDoModel task = new ToDoModel();
                         task.setId(cursor.getInt(cursor.getColumnIndex(COL_1)));
                         task.setTask(cursor.getString(cursor.getColumnIndex(COL_2)));
                         task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         task.setPriority(cursor.getInt(cursor.getColumnIndex(PR)));
-                        task.setDate(cursor.getString(cursor.getColumnIndex("DATE"))); // Добавили сюда строку
+                        task.setDate(cursor.getString(cursor.getColumnIndex("DATE")));
+
+                        // Проверка выполненных рутинных задач
+                        if (task.getIsRoutine()==1) {
+                            int routineTaskId = cursor.getInt(cursor.getColumnIndex(COL_1));
+                            task.setId(routineTaskId);
+
+                            // Проверка выполненных дат для рутинной задачи
+                            Cursor completedCursor = db.rawQuery("SELECT * FROM " + TABLE_COMPLETED_DATES +
+                                            " WHERE " + COL_COMPLETED_2 + " = ? AND " + COL_COMPLETED_3 + " = ?",
+                                    new String[]{String.valueOf(routineTaskId), date});
+
+                            if (completedCursor.moveToFirst()) {
+                                task.setStatus(completedCursor.getInt(completedCursor.getColumnIndex(COL_COMPLETED_4)));
+                            }
+
+                            completedCursor.close();
+                        }
+
                         modelList.add(task);
-                    }while (cursor.moveToNext());
+                    } while (cursor.moveToNext());
                 }
             }
+
         }finally {
             db.endTransaction();
             cursor.close();

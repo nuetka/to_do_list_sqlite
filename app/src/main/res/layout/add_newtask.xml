@@ -448,6 +448,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:hint="hours"
+            android:inputType="number"
             android:minHeight="48dp"
             android:paddingEnd="7dp" />
 
@@ -465,6 +466,7 @@
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:inputType="number"
             android:hint="min"
             android:minHeight="48dp"
             android:paddingEnd="7dp" />
@@ -483,6 +485,7 @@
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:inputType="number"
             android:hint="sec"
             android:minHeight="48dp"
             android:paddingEnd="7dp" />

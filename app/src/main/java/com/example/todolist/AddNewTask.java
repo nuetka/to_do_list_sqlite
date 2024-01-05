@@ -7,12 +7,14 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +39,7 @@ import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.example.todolist.Model.CategoryModel;
@@ -44,6 +47,9 @@ import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,6 +61,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
     //widgets
     private EditText mEditText;
     private Button mSaveButton;
+    private Button CancelButton;
     private Spinner categorySpinner;
     private ArrayAdapter<CategoryModel> adapter;
     private List<CategoryModel> categories;
@@ -68,8 +75,18 @@ public class AddNewTask extends BottomSheetDialogFragment {
     private boolean isNewCategoryAdded = false;
     private boolean isMustEdit= false;
 
-    private int priority;
+    private int priority;//is6Checjes заместо isRpotine
     private int snoty, enoty;
+
+
+
+    private CheckBox checkBoxMonday;
+    private CheckBox checkBoxTuesday;
+    private CheckBox checkBoxWednesday;
+    private CheckBox checkBoxThursday;
+    private CheckBox checkBoxFriday;
+    private CheckBox checkBoxSaturday;
+    private CheckBox checkBoxSunday;
 
     public static AddNewTask newInstance(){
         return new AddNewTask();
@@ -83,12 +100,14 @@ public class AddNewTask extends BottomSheetDialogFragment {
         return v;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mEditText = view.findViewById(R.id.edittext);
 
         mSaveButton = view.findViewById(R.id.button_save);
+        CancelButton = view.findViewById(R.id.button_cancel);
 
 
         myDb = new DataBaseHelper(getActivity());
@@ -169,6 +188,8 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
 
         final Button btn = view.findViewById(R.id.from1);
+
+        final Button btn1 = view.findViewById(R.id.from2);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,11 +207,45 @@ public class AddNewTask extends BottomSheetDialogFragment {
                                 btn.setText(hourOfDay + ":" + String.format("%02d", minute));
                                 btn.setEnabled(false);
                                 x.setVisibility(View.VISIBLE);
+
+                                // Вычисление разницы во времени теперь может быть выполнено здесь.
+                                calculateTimeDifference();
                             }
                         }, hour, minute, DateFormat.is24HourFormat(getActivity()));
+
                 timePickerDialog.show();
             }
+
+            private void calculateTimeDifference() {
+                if(x.getVisibility()==View.VISIBLE && x1.getVisibility()==View.VISIBLE) {
+                    EditText editText = view.findViewById(R.id.h);
+                    EditText editText1 = view.findViewById(R.id.m);
+
+                    LocalTime time1 = LocalTime.of(0, 0);
+                    LocalTime time2 = LocalTime.of(0, 0);
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
+
+                    try {
+                        time1 = LocalTime.parse(btn.getText().toString(), formatter);
+                        time2 = LocalTime.parse(btn1.getText().toString(), formatter);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    long hoursBetween = 0;
+                    long minutesBetween = 0;
+
+                    long totalMinutesBetween = ChronoUnit.MINUTES.between(time1, time2);
+                    hoursBetween = totalMinutesBetween / 60;
+                    minutesBetween = totalMinutesBetween % 60;
+
+                    editText.setText(String.format("%02d", hoursBetween));
+                    editText1.setText(String.format("%02d", minutesBetween));
+                }
+            }
         });
+
 
         x.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,7 +258,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         });
 
-        final Button btn1 = view.findViewById(R.id.from2);
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,12 +275,44 @@ public class AddNewTask extends BottomSheetDialogFragment {
                                 btn1.setText(hourOfDay + ":" + String.format("%02d", minute));
                                 btn1.setEnabled(false);
                                 x1.setVisibility(View.VISIBLE);
+
+                                // Вычисление разницы во времени теперь может быть выполнено здесь.
+                                calculateTimeDifference();
                             }
                         }, hour, minute, DateFormat.is24HourFormat(getActivity()));
+
                 timePickerDialog.show();
             }
-        });
 
+            private void calculateTimeDifference() {
+                if(x.getVisibility()==View.VISIBLE && x1.getVisibility()==View.VISIBLE) {
+                    EditText editText = view.findViewById(R.id.h);
+                    EditText editText1 = view.findViewById(R.id.m);
+
+                    LocalTime time1 = LocalTime.of(0, 0);
+                    LocalTime time2 = LocalTime.of(0, 0);
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
+
+                    try {
+                        time1 = LocalTime.parse(btn.getText().toString(), formatter);
+                        time2 = LocalTime.parse(btn1.getText().toString(), formatter);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    long hoursBetween = 0;
+                    long minutesBetween = 0;
+
+                    long totalMinutesBetween = ChronoUnit.MINUTES.between(time1, time2);
+                    hoursBetween = totalMinutesBetween / 60;
+                    minutesBetween = totalMinutesBetween % 60;
+
+                    editText.setText(String.format("%02d", hoursBetween));
+                    editText1.setText(String.format("%02d", minutesBetween));
+                }
+            }
+        });
         x1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -454,6 +540,8 @@ public class AddNewTask extends BottomSheetDialogFragment {
             }
         });
         final boolean finalIsUpdate = isUpdate;
+
+        Button myButtonnn = view.findViewById(R.id.forever);
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -463,15 +551,92 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     myDb.updateTask(bundle.getInt("id") , text);
                 }else{
                     ToDoModel item = new ToDoModel();
+                    if(is6Checked==1){
+                        item.setIsRoutine(1);
+                        String repeatDays=
+                        (checkBoxMonday.isChecked() ? "1" : "0") +
+                                (checkBoxTuesday.isChecked() ? "1" : "0") +
+                                (checkBoxWednesday.isChecked() ? "1" : "0") +
+                                (checkBoxThursday.isChecked() ? "1" : "0") +
+                                (checkBoxFriday.isChecked() ? "1" : "0") +
+                                (checkBoxSaturday.isChecked() ? "1" : "0") +
+                                (checkBoxSunday.isChecked() ? "1" : "0");
+
+                        item.setRepeatDays(repeatDays);
+
+                        String buttonForeverText = myButtonnn.getText().toString();
+                        if(buttonForeverText.equals("forever")){
+                            item.setRepeatEndDate("0");
+                        }
+                        else{
+                            item.setRepeatEndDate(buttonForeverText);
+                        }
+
+
+                    }
+                    else{
+                        item.setIsRoutine(0);
+                    }
                     item.setTask(text);
                     item.setStatus(0);
 
                     String dateText;
                     dateText = dateRequestListener.onRequestDate();
                     item.setDate(dateText);
+
                     item.setPriority(priority);
                     item.setSnoty(snoty);
                     item.setEnoty(enoty);
+
+                    Button pat1 = view.findViewById(R.id.from1);
+                    String strpat1 = pat1.getText().toString();
+                    if(strpat1.equals("pick a time")){
+                        item.setStart("0");
+                    }
+                    else{
+                        item.setStart(strpat1);
+                    }
+
+
+
+                    Button pat2 = view.findViewById(R.id.from2);
+                    String strpat2 = pat2.getText().toString();
+                    if(strpat2.equals("pick a time")){
+                        item.setEnd("0");
+                    }
+                    else{
+                        item.setEnd(strpat1);
+                    }
+
+                    if(x.getVisibility()==View.VISIBLE) {
+
+                        String txt = (String) btn.getText();
+                        item.setStart(txt);
+                        // editText.setText(String.valueOf(yourValue));
+                    }
+                    else {
+                        item.setStart("0");
+                    }
+
+                    if(x1.getVisibility()==View.VISIBLE) {
+
+                        String txt = (String) btn1.getText();
+                        item.setStart(txt);
+                    }
+                    else {
+                        item.setStart("0");
+                    }
+
+                    EditText editText = view.findViewById(R.id.h);
+                    EditText editText1 = view.findViewById(R.id.m);
+
+                    if(!editText.equals("hours")){
+                        item.setDuration(editText.getText().toString()+":"+editText1.getText().toString());
+                    }
+                    else{
+                        item.setDuration("0");
+                    }
+
 
 
                     myDb.insertTask(item);
@@ -481,6 +646,23 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
             }
         });
+
+        CancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // не забыть удалить категорию если добавлениа
+                dismiss();
+            }
+        });
+
+             checkBoxMonday = view.findViewById(R.id.checkbox_monday);
+             checkBoxTuesday = view.findViewById(R.id.checkbox_tuesday);
+             checkBoxWednesday = view.findViewById(R.id.checkbox_wednesday);
+             checkBoxThursday = view.findViewById(R.id.checkbox_thursday);
+             checkBoxFriday = view.findViewById(R.id.checkbox_friday);
+             checkBoxSaturday = view.findViewById(R.id.checkbox_saturday);
+             checkBoxSunday = view.findViewById(R.id.checkbox_sunday);
+
     }
 
     @Override

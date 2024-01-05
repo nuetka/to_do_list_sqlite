@@ -1,10 +1,63 @@
 package com.example.todolist.Model;
 
+import java.util.List;
+
 public class ToDoModel {
 
-    private String task;
-    private String date;
+    private int isRoutine;
+    private String repeatEndDate;
+    private String repeatDays; // строка в формате 1010010 из 7 символов
+
+    private String task, duration;
+    private String date, start, end;// дата время начала и конца
     private int id , status, categoryId, priority, snoty, enoty ;
+
+    public String getDuration() {
+        return duration;
+    }
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getStart() {
+        return start;
+    }
+
+    public void setStart(String start) {
+        this.start = start;
+    }
+
+    public String getEnd() {
+        return end;
+    }
+
+    public void setEnd(String end) {
+        this.end = end;
+    }
+
+    public String getRepeatDays() {
+        return repeatDays;
+    }
+
+    public void setRepeatDays(String repeatDays) {
+        this.repeatDays = repeatDays;
+    }
+
+    public String getRepeatEndDate() {
+        return repeatEndDate;
+    }
+
+    public void setRepeatEndDate(String repeatEndDate) {
+        this.repeatEndDate = repeatEndDate;
+    }
+
+    public int getIsRoutine() {
+        return isRoutine;
+    }
+
+    public void setIsRoutine(int isRoutine) {
+        this.isRoutine = isRoutine;
+    }
 
     public int getSnoty() {
         return snoty;
