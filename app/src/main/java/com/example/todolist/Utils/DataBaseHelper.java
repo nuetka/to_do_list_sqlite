@@ -1,11 +1,14 @@
 package com.example.todolist.Utils;
 
+import static com.example.todolist.AddNewTask.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -13,9 +16,13 @@ import androidx.annotation.Nullable;
 import com.example.todolist.Model.CategoryModel;
 import com.example.todolist.Model.ToDoModel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
@@ -121,12 +128,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put(START, model.getStart());
         values.put(ENDD, model.getEnd());
         values.put(DURATION, model.getDuration());
+        values.put(RED, model.getRepeatEndDate());
+        values.put(RD, model.getRepeatDays());
 
         long taskId = db.insert(TABLE_NAME, null, values);
 
-        if (model.getIsRoutine()==1) {
-            values.put(RED, model.getRepeatEndDate());
-            values.put(RD, model.getRepeatDays());
+        if (model.getIsRoutine()==1) { // проверить на совпадение с repeat dates
             // Если задача рутинная, добавьте информацию о рутинной задаче в таблицу с прошедшими датами
             ContentValues completedValues = new ContentValues();
             completedValues.put(COL_COMPLETED_2, taskId);
@@ -237,6 +244,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public List<ToDoModel> getAllTasks(String date){
+        Log.e(TAG, "Error message   "+date);
+
         db = this.getWritableDatabase();
         Cursor cursor = null;
         List<ToDoModel> modelList = new ArrayList<>();
@@ -262,6 +271,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         task.setEnoty(cursor.getInt(cursor.getColumnIndex(ENOTY)));
 
                         task.setDuration((cursor.getString(cursor.getColumnIndex(DURATION))));
+                        task.setIsRoutine(cursor.getInt(cursor.getColumnIndex(ROUTINE)));
+
+                        Log.e(TAG, "Error message   "+task.getIsRoutine());
 
 
                         // Existing routine task check
@@ -271,8 +283,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
                             task.setRepeatEndDate((cursor.getString(cursor.getColumnIndex(RED))));
                             task.setRepeatDays((cursor.getString(cursor.getColumnIndex(RD))));
-
-
 
                             // Check for existing completed dates for the routine task
                             Cursor completedCursor = db.rawQuery("SELECT * FROM " + TABLE_COMPLETED_DATES +
@@ -289,7 +299,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
                                 if (taskCursor.moveToFirst()) {
                                     String repeatEndDate = taskCursor.getString(taskCursor.getColumnIndex(RED));
-                                    if (repeatEndDate.equals("0") || date.compareTo(repeatEndDate) <= 0) {
+                                    Log.e(TAG, "Error message   "+repeatEndDate);
+                                    if (repeatEndDate.equals("0") || compareDates(date, repeatEndDate) <= 0) {
                                         // Create a new task with status 0
                                         ContentValues completedValues = new ContentValues();
                                         completedValues.put(COL_COMPLETED_2, routineTaskId);
@@ -319,6 +330,21 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return modelList;
+    }
+
+    private int compareDates(String date1, String date2) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        try {
+            Date dateObject1 = dateFormat.parse(date1);
+            Date dateObject2 = dateFormat.parse(date2);
+
+            if (dateObject1 != null && dateObject2 != null) {
+                return dateObject1.compareTo(dateObject2);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 
