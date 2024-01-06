@@ -35,7 +35,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static  final String ENOTY = "ENOTY";
 
     private static  final String START = "START";
-    private static  final String END = "END";
+    private static  final String ENDD = "ENDD";//END
     private static  final String DURATION = "DURATION";
 
     private static final String TABLE_CATEGORIES = "categories";
@@ -50,7 +50,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
     public DataBaseHelper(@Nullable Context context ) {
-        super(context, DATABASE_NAME, null, 3);
+        super(context, DATABASE_NAME, null, 7 );
     }
 
     @Override
@@ -84,11 +84,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     + ROUTINE + " INTEGER,"
                     + RED + " TEXT,"
                     + RD + " TEXT,"
-                    + SNOTY+" INTEGER,"
+                    + SNOTY + " INTEGER,"
                     + ENOTY + " INTEGER,"
                     + START + " TEXT,"
                     + DURATION + " TEXT,"
-                    + END + "TEXT,"
+                    + ENDD + " TEXT,"
                     + "FOREIGN KEY(" + COLUMN_CATEGORY_ID + ") REFERENCES " + TABLE_CATEGORIES + "(" + COL_1 + "))");
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_COMPLETED_DATES + "("
@@ -98,6 +98,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 + COL_COMPLETED_4 + " INTEGER,"
                 + "FOREIGN KEY(" + COL_COMPLETED_2 + ") REFERENCES " + TABLE_NAME + "(" + COL_1 + "))");
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -118,7 +119,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put(SNOTY, model.getSnoty());
         values.put(ENOTY, model.getEnoty());
         values.put(START, model.getStart());
-        values.put(END, model.getEnd());
+        values.put(ENDD, model.getEnd());
         values.put(DURATION, model.getDuration());
 
         long taskId = db.insert(TABLE_NAME, null, values);
@@ -132,7 +133,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             completedValues.put(COL_COMPLETED_3, model.getDate());
             completedValues.put(COL_COMPLETED_4, 0); // По умолчанию, задача не выполнена
 
-            db.insert(TABLE_NAME , null , values);
             db.insert(TABLE_COMPLETED_DATES, null, completedValues);
         }
     }
@@ -251,9 +251,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         ToDoModel task = new ToDoModel();
                         task.setId(cursor.getInt(cursor.getColumnIndex(COL_1)));
                         task.setTask(cursor.getString(cursor.getColumnIndex(COL_2)));
-                        task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         task.setPriority(cursor.getInt(cursor.getColumnIndex(PR)));
                         task.setDate(cursor.getString(cursor.getColumnIndex("DATE")));
+                        task.setCategoryId(cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID)));
+
+                        task.setStart((cursor.getString(cursor.getColumnIndex(START))));
+                        task.setEnd((cursor.getString(cursor.getColumnIndex(ENDD))));
+
+                        task.setSnoty(cursor.getInt(cursor.getColumnIndex(SNOTY)));
+                        task.setEnoty(cursor.getInt(cursor.getColumnIndex(ENOTY)));
+
+                        task.setDuration((cursor.getString(cursor.getColumnIndex(DURATION))));
+
+
+                        
 
                         // Проверка выполненных рутинных задач
                         if (task.getIsRoutine()==1) {
@@ -271,6 +282,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
                             completedCursor.close();
                         }
+                        else{
+                            task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
+                        }
 
                         modelList.add(task);
                     } while (cursor.moveToNext());
@@ -283,5 +297,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }
         return modelList;
     }
+
+
 
 }

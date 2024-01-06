@@ -5,57 +5,105 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <LinearLayout
+        android:id="@+id/lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
-    <ImageButton
-        android:id="@+id/previousButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_below="@+id/textview"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="1dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Previous Day"
-        android:src="@drawable/baseline_keyboard_arrow_left_24" />
+        <ImageView
+            android:id="@+id/calendarImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_calendar_today_24"
+            android:contentDescription="Calendar Icon"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="15dp"/>
+
+        <ImageButton
+            android:id="@+id/book"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/colorWhite"
+            android:src="@drawable/baseline_bookmark_24"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Data"
+            android:layout_marginTop="10dp"
+            android:textColor="#000"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <ImageButton
+            android:id="@+id/filter"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/colorWhite"
+            android:src="@drawable/baseline_filter_alt_24"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/set"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/colorWhite"
+            android:src="@drawable/baseline_settings_24"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linprnext"
+        android:layout_width="wrap_content"
+        android:layout_below="@+id/lin"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <ImageButton
+            android:id="@+id/previousButton"
+            android:layout_width="41dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Previous Day"
+            android:src="@drawable/baseline_keyboard_arrow_left_24"
+            tools:ignore="TouchTargetSizeCheck" />
 
     <ImageButton
         android:id="@+id/nextButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_below="@+id/textview"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="1dp"
-        android:layout_marginEnd="120dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:background="@android:color/transparent"
         android:contentDescription="Next Day"
-        android:src="@drawable/baseline_keyboard_arrow_right_24" />
+        android:src="@drawable/baseline_keyboard_arrow_right_24"
+        tools:ignore="TouchTargetSizeCheck" />
 
-    <ImageView
-        android:id="@+id/calendarImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_baseline_calendar_today_24"
-        android:contentDescription="Calendar Icon"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="15dp"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:text="Data"
-        android:textColor="#000"
-        android:textSize="32sp"
-        android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textview"
-        android:layout_marginTop="32dp"
+        android:layout_below="@id/linprnext"
+        android:layout_marginTop="1dp"
         android:nestedScrollingEnabled="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
