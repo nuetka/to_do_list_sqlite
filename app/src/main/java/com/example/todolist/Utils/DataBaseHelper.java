@@ -45,7 +45,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_COMPLETED_DATES = "completed_dates";
     private static final String COL_COMPLETED_1 = "ID";
     private static final String COL_COMPLETED_2 = "ROUTINE_TASK_ID";
-    private static final String COL_COMPLETED_3 = "COMPLETED_DATE";
+    private static final String COL_COMPLETED_3 = "COMPLETED_DATE"; // просто дата
     private static final String COL_COMPLETED_4 = "STATUS";
 
 
@@ -264,28 +264,51 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         task.setDuration((cursor.getString(cursor.getColumnIndex(DURATION))));
 
 
-                        
-
-                        // Проверка выполненных рутинных задач
-                        if (task.getIsRoutine()==1) {
+                        // Existing routine task check
+                        if (task.getIsRoutine() == 1) {
                             int routineTaskId = cursor.getInt(cursor.getColumnIndex(COL_1));
                             task.setId(routineTaskId);
 
-                            // Проверка выполненных дат для рутинной задачи
+                            task.setRepeatEndDate((cursor.getString(cursor.getColumnIndex(RED))));
+                            task.setRepeatDays((cursor.getString(cursor.getColumnIndex(RD))));
+
+
+
+                            // Check for existing completed dates for the routine task
                             Cursor completedCursor = db.rawQuery("SELECT * FROM " + TABLE_COMPLETED_DATES +
                                             " WHERE " + COL_COMPLETED_2 + " = ? AND " + COL_COMPLETED_3 + " = ?",
                                     new String[]{String.valueOf(routineTaskId), date});
 
                             if (completedCursor.moveToFirst()) {
+                                // Task exists for this date
                                 task.setStatus(completedCursor.getInt(completedCursor.getColumnIndex(COL_COMPLETED_4)));
-                            }
+                            } else {
+                                // Task does not exist for this date, check if it's before the repeat end date
+                                Cursor taskCursor = db.rawQuery("SELECT " + RED + " FROM " + TABLE_NAME +
+                                        " WHERE " + COL_1 + " = ?", new String[]{String.valueOf(routineTaskId)});
 
+                                if (taskCursor.moveToFirst()) {
+                                    String repeatEndDate = taskCursor.getString(taskCursor.getColumnIndex(RED));
+                                    if (repeatEndDate.equals("0") || date.compareTo(repeatEndDate) <= 0) {
+                                        // Create a new task with status 0
+                                        ContentValues completedValues = new ContentValues();
+                                        completedValues.put(COL_COMPLETED_2, routineTaskId);
+                                        completedValues.put(COL_COMPLETED_3, date);
+                                        completedValues.put(COL_COMPLETED_4, 0); // Default status
+
+                                        db.insert(TABLE_COMPLETED_DATES, null, completedValues);
+
+                                        // Set status for the new task
+                                        task.setStatus(0);
+                                    }
+                                }
+                                taskCursor.close();
+                            }
                             completedCursor.close();
                         }
                         else{
                             task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         }
-
                         modelList.add(task);
                     } while (cursor.moveToNext());
                 }

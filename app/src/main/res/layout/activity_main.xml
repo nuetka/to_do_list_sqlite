@@ -21,14 +21,28 @@
             android:layout_marginTop="10dp"
             android:layout_marginStart="15dp"/>
 
-        <ImageButton
-            android:id="@+id/book"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="@color/colorWhite"
-            android:src="@drawable/baseline_bookmark_24"
-            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <ImageButton
+                android:id="@+id/book"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:backgroundTint="@color/colorWhite"
+                android:src="@drawable/baseline_bookmark_24"
+                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/red_circle_indicator" />
+
+        </FrameLayout>
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -48,14 +62,28 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1"/>
-        <ImageButton
-            android:id="@+id/filter"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="@color/colorWhite"
-            android:src="@drawable/baseline_filter_alt_24"
-            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <ImageButton
+                android:id="@+id/filter"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:backgroundTint="@color/colorWhite"
+                android:src="@drawable/baseline_filter_alt_24"
+                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/red_circle_indicator" />
+
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/set"
