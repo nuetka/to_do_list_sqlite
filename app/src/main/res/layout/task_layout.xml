@@ -11,6 +11,7 @@
 
     <!-- TextView для времени -->
     <TextView
+        android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="10:00"
@@ -33,6 +34,7 @@
             android:textColor="@android:color/black"
             android:textSize="14sp"/>
         <TextView
+            android:id="@+id/end"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="12:00"
@@ -52,12 +54,14 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
         <TextView
+            android:id="@+id/dur"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Duration:"
             android:textColor="@android:color/black"
             android:textSize="14sp" />
         <TextView
+            android:id="@+id/dur1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="13h:23m"
@@ -85,6 +89,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <TextView
+                    android:id="@+id/cat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Работа"
@@ -96,10 +101,12 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"/>
                 <TextView
+                    android:id="@+id/repeat"
                     android:layout_width="17dp"
                     android:layout_height="17dp"
                     android:drawableBottom="@drawable/repeat2" />
                 <TextView
+                    android:id="@+id/priority"
                     android:layout_width="17dp"
                     android:layout_height="17dp"
                     android:drawableBottom="@drawable/flagg" />

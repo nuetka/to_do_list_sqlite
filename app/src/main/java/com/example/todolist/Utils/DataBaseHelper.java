@@ -19,6 +19,7 @@ import com.example.todolist.Model.ToDoModel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -165,31 +166,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_CATEGORIES, values, whereClause, whereArgs);
     }
 
-    public CategoryModel getLastInsertedCategory() {
-        db = this.getReadableDatabase();
-
-        String query = "SELECT * FROM " + TABLE_CATEGORIES + " ORDER BY " + COLUMN_CATEGORY_ID + " DESC LIMIT 1";
-
-        Cursor cursor = db.rawQuery(query, null);
-
-        CategoryModel lastInsertedCategory = null;
-
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(COLUMN_CATEGORY_ID);
-            int nameIndex = cursor.getColumnIndex(COLUMN_CATEGORY_NAME);
-
-            int categoryId = cursor.getInt(idIndex);
-            String categoryName = cursor.getString(nameIndex);
-
-            lastInsertedCategory = new CategoryModel();
-            lastInsertedCategory.setId(categoryId);
-            lastInsertedCategory.setName(categoryName);
-        }
-
-        cursor.close();
-        return lastInsertedCategory;
-    }
-
     public void deleteCategory(int categoryId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CATEGORIES, COLUMN_CATEGORY_ID + " = ?", new String[]{String.valueOf(categoryId)});
@@ -243,6 +219,34 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
+    public String findCategoryNameByIndex(int categoryId) {
+        db = this.getReadableDatabase();
+        String categoryName = "0";
+        Cursor cursor = null;
+
+        try {
+            cursor = db.query(TABLE_CATEGORIES,
+                    new String[]{COLUMN_CATEGORY_NAME},
+                    COLUMN_CATEGORY_ID + " = ?",
+                    new String[]{String.valueOf(categoryId)},
+                    null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME));
+            }
+        } catch (Exception e) {
+            // Обработка исключения
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return categoryName;
+    }
+
+    @SuppressLint("Range")
     public List<ToDoModel> getAllTasks(String date){
         Log.e(TAG, "Error message   "+date);
 
@@ -251,8 +255,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         List<ToDoModel> modelList = new ArrayList<>();
         db.beginTransaction();
         try {
-            String sortOrder = "CASE WHEN " + COL_3 + " = 1 THEN 0 ELSE 1 END, " + COL_3;
-            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE DATE = ? ORDER BY " + sortOrder, new String[]{date});
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE DATE = ? OR " + ROUTINE + " = 1", new String[]{date});
 
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
@@ -320,7 +323,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         else{
                             task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         }
-                        modelList.add(task);
+                        if((task.getIsRoutine()==1 && (task.getRepeatEndDate().equals("0") || compareDates(date, task.getRepeatEndDate()) <= 0))||task.getIsRoutine()==0) {
+                            modelList.add(task);
+                        }
                     } while (cursor.moveToNext());
                 }
             }
@@ -329,14 +334,22 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             db.endTransaction();
             cursor.close();
         }
+        Collections.sort(modelList, new Comparator<ToDoModel>() {
+            @Override
+            public int compare(ToDoModel task1, ToDoModel task2) {
+                // Сравниваем по статусу
+                return Integer.compare(task1.getStatus(), task2.getStatus());
+            }
+        });
         return modelList;
     }
 
     private int compareDates(String date1, String date2) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         try {
-            Date dateObject1 = dateFormat.parse(date1);
-            Date dateObject2 = dateFormat.parse(date2);
+            Date dateObject1 = dateFormat1.parse(date1);
+            Date dateObject2 = dateFormat2.parse(date2);
 
             if (dateObject1 != null && dateObject2 != null) {
                 return dateObject1.compareTo(dateObject2);

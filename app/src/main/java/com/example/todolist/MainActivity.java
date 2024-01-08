@@ -94,6 +94,10 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
 
         mList = myDB.getAllTasks(strDate);
         Collections.reverse(mList);
+
+
+
+
         adapter.setTasks(mList);
 
         fab.setOnClickListener(new View.OnClickListener() {

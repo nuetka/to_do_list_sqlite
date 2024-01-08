@@ -14,6 +14,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -629,8 +630,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
                     EditText editText = view.findViewById(R.id.h);
                     EditText editText1 = view.findViewById(R.id.m);
+                    Log.e(TAG, "HOURS!"+editText.getText().toString());
 
-                    if(!editText.equals("hours")){
+                    if(!editText.getText().toString().equals("hours")){
                         item.setDuration(editText.getText().toString()+":"+editText1.getText().toString());
                     }
                     else{
