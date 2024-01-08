@@ -168,7 +168,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         //разбираюсь с перелистыванием с доб задачу на событие
         TextView addTaskTab = view.findViewById(R.id.imagesTextView);
-        TextView addEventTab = view.findViewById(R.id.videosTextView);
+        TextView addNoteTab = view.findViewById(R.id.videosTextView);
         final TextView priorityText = view.findViewById(R.id.textview);
 
         final RelativeLayout relativeLayout = view.findViewById(R.id.loy1);
@@ -482,10 +482,11 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 eventUnder.setBackgroundColor(Color.GRAY);
                 taskTextView.setTextColor(Color.BLACK);
                 taskUnder.setBackgroundColor(Color.BLACK);
+                mEditText.setText("Enter Description");
             }
         });
 
-        addEventTab.setOnClickListener(new View.OnClickListener() {
+        addNoteTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Скрыть текстовое представление приоритета и группу радиокнопок, когда пользователь выбирает "добавление события"
@@ -500,6 +501,8 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 eventUnder.setBackgroundColor(Color.BLACK);
                 taskTextView.setTextColor(Color.GRAY);
                 taskUnder.setBackgroundColor(Color.GRAY);
+                mEditText.setText("Enter a note");
+
             }
         });
 
@@ -511,7 +514,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
         if (bundle != null){
             isUpdate = true;
             String task = bundle.getString("task");
-            mEditText.setText(task);
 
             if (task.length() > 0 ){
                 mSaveButton.setEnabled(false);
