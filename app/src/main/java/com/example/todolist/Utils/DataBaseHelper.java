@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.example.todolist.Model.CategoryModel;
+import com.example.todolist.Model.NoteModel;
 import com.example.todolist.Model.ToDoModel;
 
 import java.text.ParseException;
@@ -57,8 +58,16 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String COL_COMPLETED_4 = "STATUS";
 
 
+
+
+    private static final String TABLE_NOTES = "notes";
+    private static final String COL_NOTE_ID = "ID";
+    private static final String COL_NOTE_DESCRIPTION = "DESCRIPTION";
+    private static final String COL_NOTE_DATE = "DATE";
+
+
     public DataBaseHelper(@Nullable Context context ) {
-        super(context, DATABASE_NAME, null, 7 );
+        super(context, DATABASE_NAME, null, 8 );
     }
 
     @Override
@@ -105,6 +114,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 + COL_COMPLETED_3 + " TEXT,"
                 + COL_COMPLETED_4 + " INTEGER,"
                 + "FOREIGN KEY(" + COL_COMPLETED_2 + ") REFERENCES " + TABLE_NAME + "(" + COL_1 + "))");
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NOTES + "("
+                + COL_NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COL_NOTE_DESCRIPTION + " TEXT,"
+                + COL_NOTE_DATE + " TEXT)");
     }
 
 
@@ -113,6 +127,46 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
         onCreate(db);
+    }
+
+    public void insertNote(NoteModel note) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_NOTE_DESCRIPTION, note.getDescription());
+        values.put(COL_NOTE_DATE, note.getDate());
+        db.insert(TABLE_NOTES, null, values);
+    }
+
+    @SuppressLint("Range")
+    public String getNoteTextByDate(String date) {
+        db = this.getReadableDatabase();
+        String query = "SELECT " + COL_NOTE_DESCRIPTION + " FROM " + TABLE_NOTES + " WHERE " + COL_NOTE_DATE + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{date});
+
+        String noteText = "";
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            noteText = cursor.getString(cursor.getColumnIndex(COL_NOTE_DESCRIPTION));
+        }
+
+
+        Log.e(TAG, "ошибка"+noteText+"ggg");
+        cursor.close();
+
+        return noteText;
+    }
+
+    public void updateNoteByDate(String date, String newDescription) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_NOTE_DESCRIPTION, newDescription);
+        db.update(TABLE_NOTES, values, COL_NOTE_DATE + "=?", new String[]{date});
+    }
+
+    public void deleteNoteByDate(String date) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NOTES, COL_NOTE_DATE + "=?", new String[]{date});
     }
 
     public void insertTask(ToDoModel model){

@@ -26,21 +26,23 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp">
 
-            <ImageButton
-                android:id="@+id/book"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:backgroundTint="@color/colorWhite"
-                android:src="@drawable/baseline_bookmark_24"
-                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+        <ImageButton
+            android:id="@+id/book"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@color/colorWhite"
+            android:src="@drawable/baseline_bookmark_24"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
-            <View
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_gravity="top|end"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="4dp"
-                android:background="@drawable/red_circle_indicator" />
+        <View
+            android:id="@+id/point"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="top|end"
+            android:visibility="gone"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/red_circle_indicator" />
 
         </FrameLayout>
         <View
@@ -135,15 +137,18 @@
         android:nestedScrollingEnabled="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:id="@+id/fab"
-        app:backgroundTint="@color/colorPrimary"
-        app:tint="@android:color/white"
-        android:src="@drawable/ic_baseline_add_24"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp"
         android:contentDescription="Добавить элемент"
-        android:layout_margin="30dp" />
+        android:src="@drawable/ic_baseline_add_24"
+        app:backgroundTint="@color/colorPrimary"
+        app:tint="@android:color/white" />
 
 </RelativeLayout>

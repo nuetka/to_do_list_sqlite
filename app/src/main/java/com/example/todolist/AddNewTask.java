@@ -37,6 +37,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +45,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.example.todolist.Model.CategoryModel;
+import com.example.todolist.Model.NoteModel;
 import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -89,6 +91,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
     private CheckBox checkBoxSaturday;
     private CheckBox checkBoxSunday;
 
+    private boolean notemode = false;
+    private Bundle args;
+
     public static AddNewTask newInstance(){
         return new AddNewTask();
     }
@@ -105,13 +110,91 @@ public class AddNewTask extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        myDb = new DataBaseHelper(getContext());
+        TextView addTaskTab = view.findViewById(R.id.imagesTextView);
+        TextView addNoteTab = view.findViewById(R.id.videosTextView);
+        final TextView priorityText = view.findViewById(R.id.textview);
+
+        final RelativeLayout relativeLayout = view.findViewById(R.id.loy1);
+        final LinearLayout linearLayout = view.findViewById(R.id.linear);
+        final LinearLayout linearForever = view.findViewById(R.id.linearForever);
+        final LinearLayout linLay1 = view.findViewById(R.id.linearLayout1);
+        final LinearLayout linLay2 = view.findViewById(R.id.linearLayout2);
+        final LinearLayout linLay3 = view.findViewById(R.id.linearLayout3);
+        final LinearLayout linLay4 = view.findViewById(R.id.linearLayout4);
+
+        final View eventUnder = view.findViewById(R.id.videosUnderline);
+        final TextView taskTextView = view.findViewById(R.id.imagesTextView);
+        final View taskUnder = view.findViewById(R.id.imagesUnderline);
+
+        final ImageView x = view.findViewById(R.id.myImageView);
+        final ImageView x1 = view.findViewById(R.id.myImageView1);
+
+
+        final Button btn = view.findViewById(R.id.from1);
+
+        final Button btn1 = view.findViewById(R.id.from2);
+
+        final RadioGroup radioGroup = view.findViewById(R.id.radioGroup);
+        final RadioButton radioButton1 = view.findViewById(R.id.radioButton1);
+        final RadioButton radioButton2 = view.findViewById(R.id.radioButton2);
+        final RadioButton radioButton3 = view.findViewById(R.id.radioButton3);
+        final RadioButton radioButton4 = view.findViewById(R.id.radioButton4);
+        final RadioButton radioButton5 = view.findViewById(R.id.radioButton5);
+
+        final RadioButton radioButton6 = view.findViewById(R.id.radioButton6);
+
+        lastCheckedId = radioGroup.getCheckedRadioButtonId(); // Устанавливает последний выбранный RadioButton
+
+        String dateText = dateRequestListener.onRequestDate();
+        String sis = null;
+        sis=myDb.getNoteTextByDate(dateText);
+        final TextView eventTextView = view.findViewById(R.id.videosTextView);
+        Bundle args = getArguments();
+
+        try {
+
+            args = getArguments();
+            if (args != null) {
+                String source = args.getString("source");
+                if ("book".equals(source)) {
+                    // book была нажата
+                    // Скрыть текстовое представление приоритета и группу радиокнопок, когда пользователь выбирает "добавление события"
+                    priorityText.setVisibility(View.GONE);
+                    radioGroup.setVisibility(View.GONE);
+                    relativeLayout.setVisibility(View.GONE);
+                    linLay1.setVisibility(View.GONE);
+                    linLay2.setVisibility(View.GONE);
+                    linLay3.setVisibility(View.GONE);
+                    linLay4.setVisibility(View.GONE);
+                    eventUnder.setBackgroundColor(Color.BLACK);
+                    taskTextView.setTextColor(Color.GRAY);
+                    taskUnder.setBackgroundColor(Color.GRAY);
+                    if (sis == null || sis.isEmpty()) {
+                        mEditText.setHint("Enter a note");
+                    } else {
+                        mEditText.setText(sis);
+                    }
+                    notemode = true;
+
+                }
+            }
+        }catch(Exception e){
+
+        }
+
+
         mEditText = view.findViewById(R.id.edittext);
 
         mSaveButton = view.findViewById(R.id.button_save);
         CancelButton = view.findViewById(R.id.button_cancel);
 
 
-        myDb = new DataBaseHelper(getActivity());
+        if(sis!=null && (!sis.equals("")) ){
+            eventTextView.setText("edit note");
+        }
+
         categorySpinner = view.findViewById(R.id.categorySpinner);
         updateCategorySpinner();
 
@@ -167,30 +250,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
         });
 
         //разбираюсь с перелистыванием с доб задачу на событие
-        TextView addTaskTab = view.findViewById(R.id.imagesTextView);
-        TextView addNoteTab = view.findViewById(R.id.videosTextView);
-        final TextView priorityText = view.findViewById(R.id.textview);
 
-        final RelativeLayout relativeLayout = view.findViewById(R.id.loy1);
-        final LinearLayout linearLayout = view.findViewById(R.id.linear);
-        final LinearLayout linearForever = view.findViewById(R.id.linearForever);
-        final LinearLayout linLay1 = view.findViewById(R.id.linearLayout1);
-        final LinearLayout linLay2 = view.findViewById(R.id.linearLayout2);
-        final LinearLayout linLay3 = view.findViewById(R.id.linearLayout3);
-        final LinearLayout linLay4 = view.findViewById(R.id.linearLayout4);
-
-        final TextView eventTextView = view.findViewById(R.id.videosTextView);
-        final View eventUnder = view.findViewById(R.id.videosUnderline);
-        final TextView taskTextView = view.findViewById(R.id.imagesTextView);
-        final View taskUnder = view.findViewById(R.id.imagesUnderline);
-
-        final ImageView x = view.findViewById(R.id.myImageView);
-        final ImageView x1 = view.findViewById(R.id.myImageView1);
-
-
-        final Button btn = view.findViewById(R.id.from1);
-
-        final Button btn1 = view.findViewById(R.id.from2);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -366,16 +426,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
         });
 
 
-        final RadioGroup radioGroup = view.findViewById(R.id.radioGroup);
-        final RadioButton radioButton1 = view.findViewById(R.id.radioButton1);
-        final RadioButton radioButton2 = view.findViewById(R.id.radioButton2);
-        final RadioButton radioButton3 = view.findViewById(R.id.radioButton3);
-        final RadioButton radioButton4 = view.findViewById(R.id.radioButton4);
-        final RadioButton radioButton5 = view.findViewById(R.id.radioButton5);
 
-        final RadioButton radioButton6 = view.findViewById(R.id.radioButton6);
-
-        lastCheckedId = radioGroup.getCheckedRadioButtonId(); // Устанавливает последний выбранный RadioButton
 
         radioButton1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -475,6 +526,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 radioGroup.setVisibility(View.VISIBLE);
                 relativeLayout.setVisibility(View.VISIBLE);
                 linLay1.setVisibility(View.VISIBLE);
+                mEditText.setHint("Enter Description");
                 linLay2.setVisibility(View.VISIBLE);
                 linLay3.setVisibility(View.VISIBLE);
                 linLay4.setVisibility(View.VISIBLE);
@@ -482,7 +534,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 eventUnder.setBackgroundColor(Color.GRAY);
                 taskTextView.setTextColor(Color.BLACK);
                 taskUnder.setBackgroundColor(Color.BLACK);
-                mEditText.setText("Enter Description");
+                notemode=false;
             }
         });
 
@@ -501,7 +553,18 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 eventUnder.setBackgroundColor(Color.BLACK);
                 taskTextView.setTextColor(Color.GRAY);
                 taskUnder.setBackgroundColor(Color.GRAY);
-                mEditText.setText("Enter a note");
+                String dateText;
+                dateText = dateRequestListener.onRequestDate();
+                String sis = null;
+                sis = myDb.getNoteTextByDate(dateText);
+
+                    if (sis==null || sis.isEmpty()) {
+                        mEditText.setHint("Enter a note");
+//                        mEditText.setTextColor(Color.GRAY);
+                    } else {
+                        mEditText.setText(sis);
+                    }
+                notemode=true;
 
             }
         });
@@ -510,10 +573,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         boolean isUpdate = false;
 
-        final Bundle bundle = getArguments();
-        if (bundle != null){
+        if (args.size()>1){
             isUpdate = true;
-            String task = bundle.getString("task");
+            String task = args.getString("task");
 
             if (task.length() > 0 ){
                 mSaveButton.setEnabled(false);
@@ -545,39 +607,56 @@ public class AddNewTask extends BottomSheetDialogFragment {
         final boolean finalIsUpdate = isUpdate;
 
         Button myButtonnn = view.findViewById(R.id.forever);
+        final Bundle finalArgs = args;
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String text = mEditText.getText().toString();
 
-                if (finalIsUpdate){
-                    myDb.updateTask(bundle.getInt("id") , text);
+                if(notemode){
+                    NoteModel item = new NoteModel();
+                    String dateText;
+                    dateText = dateRequestListener.onRequestDate();
+                    if(myDb.getNoteTextByDate(dateText)!=null) {
+
+                        item.setDate(dateText);
+
+                        item.setDescription(text);
+
+                        myDb.insertNote(item);
+                    }
+                    else{
+                        myDb.updateNoteByDate(dateText,text);
+                    }
+
                 }else{
+
+                if (finalIsUpdate){
+                    myDb.updateTask(finalArgs.getInt("id") , text);
+                }else {
                     ToDoModel item = new ToDoModel();
-                    if(is6Checked==1){
+                    if (is6Checked == 1) {
                         item.setIsRoutine(1);
-                        String repeatDays=
-                        (checkBoxMonday.isChecked() ? "1" : "0") +
-                                (checkBoxTuesday.isChecked() ? "1" : "0") +
-                                (checkBoxWednesday.isChecked() ? "1" : "0") +
-                                (checkBoxThursday.isChecked() ? "1" : "0") +
-                                (checkBoxFriday.isChecked() ? "1" : "0") +
-                                (checkBoxSaturday.isChecked() ? "1" : "0") +
-                                (checkBoxSunday.isChecked() ? "1" : "0");
+                        String repeatDays =
+                                (checkBoxMonday.isChecked() ? "1" : "0") +
+                                        (checkBoxTuesday.isChecked() ? "1" : "0") +
+                                        (checkBoxWednesday.isChecked() ? "1" : "0") +
+                                        (checkBoxThursday.isChecked() ? "1" : "0") +
+                                        (checkBoxFriday.isChecked() ? "1" : "0") +
+                                        (checkBoxSaturday.isChecked() ? "1" : "0") +
+                                        (checkBoxSunday.isChecked() ? "1" : "0");
 
                         item.setRepeatDays(repeatDays);
 
                         String buttonForeverText = myButtonnn.getText().toString();
-                        if(buttonForeverText.equals("forever")){
+                        if (buttonForeverText.equals("forever")) {
                             item.setRepeatEndDate("0");
-                        }
-                        else{
+                        } else {
                             item.setRepeatEndDate(buttonForeverText);
                         }
 
 
-                    }
-                    else{
+                    } else {
                         item.setIsRoutine(0);
                     }
                     item.setTask(text);
@@ -593,57 +672,51 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
                     Button pat1 = view.findViewById(R.id.from1);
                     String strpat1 = pat1.getText().toString();
-                    if(strpat1.equals("pick a time")){
+                    if (strpat1.equals("pick a time")) {
                         item.setStart("0");
-                    }
-                    else{
+                    } else {
                         item.setStart(strpat1);
                     }
 
 
-
                     Button pat2 = view.findViewById(R.id.from2);
                     String strpat2 = pat2.getText().toString();
-                    if(strpat2.equals("pick a time")){
+                    if (strpat2.equals("pick a time")) {
                         item.setEnd("0");
-                    }
-                    else{
+                    } else {
                         item.setEnd(strpat1);
                     }
 
-                    if(x.getVisibility()==View.VISIBLE) {
+                    if (x.getVisibility() == View.VISIBLE) {
 
                         String txt = (String) btn.getText();
                         item.setStart(txt);
                         // editText.setText(String.valueOf(yourValue));
-                    }
-                    else {
+                    } else {
                         item.setStart("0");
                     }
 
-                    if(x1.getVisibility()==View.VISIBLE) {
+                    if (x1.getVisibility() == View.VISIBLE) {
 
                         String txt = (String) btn1.getText();
                         item.setStart(txt);
-                    }
-                    else {
+                    } else {
                         item.setStart("0");
                     }
 
                     EditText editText = view.findViewById(R.id.h);
                     EditText editText1 = view.findViewById(R.id.m);
-                    Log.e(TAG, "HOURS!"+editText.getText().toString());
+                    Log.e(TAG, "HOURS!" + editText.getText().toString());
 
-                    if(!editText.getText().toString().equals("hours")){
-                        item.setDuration(editText.getText().toString()+":"+editText1.getText().toString());
-                    }
-                    else{
+                    if (!editText.getText().toString().equals("hours")) {
+                        item.setDuration(editText.getText().toString() + ":" + editText1.getText().toString());
+                    } else {
                         item.setDuration("0");
                     }
 
 
-
                     myDb.insertTask(item);
+                }
 
                 }
                 dismiss();
@@ -666,6 +739,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
              checkBoxFriday = view.findViewById(R.id.checkbox_friday);
              checkBoxSaturday = view.findViewById(R.id.checkbox_saturday);
              checkBoxSunday = view.findViewById(R.id.checkbox_sunday);
+
+
+
 
     }
 
@@ -801,7 +877,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
         builder.show();
     }
-
 
 
 
