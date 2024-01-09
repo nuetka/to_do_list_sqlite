@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
 
     String strDate;
-    ImageButton previousButton;
+    ImageButton previousButton, filter;
     ImageButton nextButton,book;
     View point;
 
@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         dateTextView = (TextView) findViewById(R.id.textview);
         previousButton = (ImageButton) findViewById(R.id.previousButton);
         nextButton = (ImageButton) findViewById(R.id.nextButton);
+        filter = (ImageButton) findViewById(R.id.filter);
         calendarImage = (ImageView) findViewById(R.id.calendarImage);
 
         book = (ImageButton) findViewById(R.id.book);
@@ -145,7 +146,24 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
             e.printStackTrace();
 
         }
+
+        filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                   Filter dialog = Filter.newInstance();
+                    dialog.show(getSupportFragmentManager(), AddNewTask.TAG);
+            }
+        });
+
+        ItemTouchHelper itemTouchHelperForBook = new ItemTouchHelper(new RecyclerViewTouchHelper(adapter));
+        itemTouchHelperForBook.attachToRecyclerView(mRecyclerview);
+
+
+
+
         }
+
+
 
 
     private void updateDateTextView() {
@@ -194,6 +212,12 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         mList = myDB.getAllTasks(strDate);
         Collections.reverse(mList);
         adapter.setTasks(mList);
+        String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
+        if (sis != null && (!sis.equals(""))) {
+            point.setVisibility(View.VISIBLE);
+        }else{
+            point.setVisibility(View.GONE);
+        }
         adapter.notifyDataSetChanged();
     }
 
@@ -201,6 +225,13 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     public void onDialogClose(DialogInterface dialogInterface) {
         mList = myDB.getAllTasks(strDate);
         Collections.reverse(mList);
+        String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
+        if (sis != null && (!sis.equals(""))) {
+            point.setVisibility(View.VISIBLE);
+        }
+        else{
+            point.setVisibility(View.GONE);
+        }
         adapter.setTasks(mList);
         adapter.notifyDataSetChanged();
     }

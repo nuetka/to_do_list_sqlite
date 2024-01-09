@@ -63,8 +63,8 @@ public class AddNewTask extends BottomSheetDialogFragment {
     public static final String TAG = "AddNewTask";
     //widgets
     private EditText mEditText;
-    private Button mSaveButton;
-    private Button CancelButton;
+    private Button mSaveButton, ButtonEdit;
+    private Button CancelButton, DeleteButton;
     private Spinner categorySpinner;
     private ArrayAdapter<CategoryModel> adapter;
     private List<CategoryModel> categories;
@@ -92,6 +92,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
     private CheckBox checkBoxSunday;
 
     private boolean notemode = false;
+    private boolean imagenotemode = false;
     private Bundle args;
 
     public static AddNewTask newInstance(){
@@ -143,6 +144,14 @@ public class AddNewTask extends BottomSheetDialogFragment {
         final RadioButton radioButton4 = view.findViewById(R.id.radioButton4);
         final RadioButton radioButton5 = view.findViewById(R.id.radioButton5);
 
+
+        mEditText = view.findViewById(R.id.edittext);
+
+        mSaveButton = view.findViewById(R.id.button_save);
+        CancelButton = view.findViewById(R.id.button_cancel);
+        DeleteButton = view.findViewById(R.id.del);
+        ButtonEdit = view.findViewById(R.id.edit);
+
         final RadioButton radioButton6 = view.findViewById(R.id.radioButton6);
 
         lastCheckedId = radioGroup.getCheckedRadioButtonId(); // Устанавливает последний выбранный RadioButton
@@ -153,12 +162,12 @@ public class AddNewTask extends BottomSheetDialogFragment {
         final TextView eventTextView = view.findViewById(R.id.videosTextView);
         Bundle args = getArguments();
 
-        try {
-
             args = getArguments();
-            if (args != null) {
+            if (args!=null) {
                 String source = args.getString("source");
                 if ("book".equals(source)) {
+                    imagenotemode = true;
+                    notemode=true;
                     // book была нажата
                     // Скрыть текстовое представление приоритета и группу радиокнопок, когда пользователь выбирает "добавление события"
                     priorityText.setVisibility(View.GONE);
@@ -166,29 +175,27 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     relativeLayout.setVisibility(View.GONE);
                     linLay1.setVisibility(View.GONE);
                     linLay2.setVisibility(View.GONE);
+                    DeleteButton.setVisibility(View.VISIBLE);
                     linLay3.setVisibility(View.GONE);
+
+                    mSaveButton.setVisibility(View.GONE);
+                    ButtonEdit.setVisibility(View.VISIBLE);
+                    CancelButton.setText("OK");
+                    ButtonEdit.setVisibility(View.VISIBLE);
                     linLay4.setVisibility(View.GONE);
-                    eventUnder.setBackgroundColor(Color.BLACK);
-                    taskTextView.setTextColor(Color.GRAY);
-                    taskUnder.setBackgroundColor(Color.GRAY);
+                    eventUnder.setVisibility(View.GONE);
+//                    taskTextView.setTextColor(Color.GRAY);
+                    taskTextView.setText("note");
+//                    taskUnder.setBackgroundColor(Color.GRAY);
+                    addNoteTab.setVisibility(View.GONE);
                     if (sis == null || sis.isEmpty()) {
                         mEditText.setHint("Enter a note");
                     } else {
                         mEditText.setText(sis);
                     }
-                    notemode = true;
 
                 }
             }
-        }catch(Exception e){
-
-        }
-
-
-        mEditText = view.findViewById(R.id.edittext);
-
-        mSaveButton = view.findViewById(R.id.button_save);
-        CancelButton = view.findViewById(R.id.button_cancel);
 
 
         if(sis!=null && (!sis.equals("")) ){
@@ -527,9 +534,15 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 relativeLayout.setVisibility(View.VISIBLE);
                 linLay1.setVisibility(View.VISIBLE);
                 mEditText.setHint("Enter Description");
+                if(mEditText.getText()!=null){
+                    mEditText.setText(null);
+                }
                 linLay2.setVisibility(View.VISIBLE);
                 linLay3.setVisibility(View.VISIBLE);
                 linLay4.setVisibility(View.VISIBLE);
+                mSaveButton.setVisibility(View.VISIBLE);
+                mSaveButton.setEnabled(true);
+                DeleteButton.setVisibility(View.GONE);
                 eventTextView.setTextColor(Color.GRAY);
                 eventUnder.setBackgroundColor(Color.GRAY);
                 taskTextView.setTextColor(Color.BLACK);
@@ -547,6 +560,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 relativeLayout.setVisibility(View.GONE);
                 linLay1.setVisibility(View.GONE);
                 linLay2.setVisibility(View.GONE);
+                DeleteButton.setVisibility(View.VISIBLE);
                 linLay3.setVisibility(View.GONE);
                 linLay4.setVisibility(View.GONE);
                 eventTextView.setTextColor(Color.BLACK);
@@ -561,6 +575,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     if (sis==null || sis.isEmpty()) {
                         mEditText.setHint("Enter a note");
 //                        mEditText.setTextColor(Color.GRAY);
+                        DeleteButton.setVisibility(View.GONE);
                     } else {
                         mEditText.setText(sis);
                     }
@@ -573,7 +588,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         boolean isUpdate = false;
 
-        if (args.size()>1){
+        if (((!imagenotemode)&&(args!=null))){
             isUpdate = true;
             String task = args.getString("task");
 
@@ -590,13 +605,13 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().equals("")){
-                    mSaveButton.setEnabled(false);
-                    mSaveButton.setBackgroundColor(Color.GRAY);
-                }else{
-                    mSaveButton.setEnabled(true);
-                    mSaveButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                }
+//                if (s.toString().equals("")){
+//                    mSaveButton.setEnabled(false);
+//                    mSaveButton.setBackgroundColor(Color.GRAY);
+//                }else{
+//                    mSaveButton.setEnabled(true);
+//                    mSaveButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+//                }
             }
 
             @Override
@@ -632,7 +647,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 }else{
 
                 if (finalIsUpdate){
-                    myDb.updateTask(finalArgs.getInt("id") , text);
+//                    myDb.updateTask(finalArgs.getInt("id") , text);
                 }else {
                     ToDoModel item = new ToDoModel();
                     if (is6Checked == 1) {
@@ -729,6 +744,18 @@ public class AddNewTask extends BottomSheetDialogFragment {
             public void onClick(View v) {
                 // не забыть удалить категорию если добавлениа
                 dismiss();
+            }
+        });
+
+        DeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String dateText;
+                dateText = dateRequestListener.onRequestDate();
+                myDb.deleteNoteByDate(dateText);
+                DeleteButton.setVisibility(View.GONE);
+                dismiss();
+
             }
         });
 

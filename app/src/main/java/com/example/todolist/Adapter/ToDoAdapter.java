@@ -53,7 +53,6 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
         holder.mCheckBox.setText(item.getTask());
         holder.mCheckBox.setChecked(toBoolean(item.getStatus()));
 
-
         // Set the time for the task
         if(item.getStart().equals("0")) {
             holder.start.setText("___");
