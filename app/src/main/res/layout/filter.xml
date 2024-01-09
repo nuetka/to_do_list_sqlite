@@ -266,11 +266,12 @@
             android:id="@+id/myImageView"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:clickable="true"
-            android:layout_marginTop="10dp"
-            android:focusable="true"
             android:layout_marginStart="-40dp"
-            android:src="@drawable/x" />
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/x"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
     </LinearLayout>
 
     <LinearLayout
@@ -305,11 +306,12 @@
             android:id="@+id/myImageView1"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:clickable="true"
-            android:layout_marginTop="10dp"
-            android:focusable="true"
             android:layout_marginStart="-40dp"
-            android:src="@drawable/x" />
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/x"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
 
     </LinearLayout>
@@ -346,11 +348,12 @@
             android:id="@+id/myImageView2"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:clickable="true"
-            android:layout_marginTop="10dp"
-            android:focusable="true"
             android:layout_marginStart="-40dp"
-            android:src="@drawable/x" />
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/x"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
 
     </LinearLayout>
