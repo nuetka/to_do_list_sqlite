@@ -6,6 +6,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.TextView;
 
 
 import androidx.annotation.Nullable;
@@ -27,6 +28,14 @@ public class AlarmActivity extends AppCompatActivity {
             mediaPlayer.setLooping(true); // loop the sound
             mediaPlayer.start(); // start playing the sound
         }
+
+
+        // Получение текста задачи из Intent
+        String taskText = getIntent().getStringExtra("task_text");
+
+        // Настройка TextView
+        TextView textView = findViewById(R.id.textview);
+        textView.setText(taskText); // Установка текста задачи
 
         // Close the activity after 5 seconds (adjust the delay as needed)
         new Handler().postDelayed(new Runnable() {

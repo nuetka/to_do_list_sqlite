@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import com.example.todolist.Model.ToDoModel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -213,7 +215,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             long alarmTimeMillis = getAlarmTimeMillis(model);
 
             // Установите будильник
-            setAlarm(model.getId(), alarmTimeMillis);
+            setAlarm(model.getId(), alarmTimeMillis, model.getTask());
         }
     }
 
@@ -468,14 +470,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     private long getAlarmTimeMillis(ToDoModel model) {
-        // Ваш код для получения времени в миллисекундах, например, из model.getStart() или model.getDate()
-
-        // Пример: Получение времени в миллисекундах из строки даты
+        // Преобразуйте дату и время из модели в Calendar
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
         try {
             Date date = dateFormat.parse(model.getDate() + " " + model.getStart());
             if (date != null) {
-                return date.getTime();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+
+                // Установите точное время срабатывания в 12:23:00
+//                calendar.set(Calendar.HOUR_OF_DAY, 12);
+//                calendar.set(Calendar.MINUTE, 23);
+                  calendar.set(Calendar.SECOND, 0);
+
+                return calendar.getTimeInMillis();
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -484,22 +492,31 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return 0;
     }
 
+
+
     @SuppressLint("ScheduleExactAlarm")
-    private void setAlarm(int taskId, long alarmTimeMillis) {
+    private void setAlarm(int taskId, long alarmTimeMillis, String taskText) {
         AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
 
         Intent intent = new Intent(con, AlarmActivity.class);
         intent.putExtra("taskId", taskId);
+        intent.putExtra("task_text", taskText);  // Передаем текст задачи
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(alarmTimeMillis, pendingIntent);
-
+        // Используем метод setExact для точного срабатывания будильника
         if (alarmManager != null) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+            }
         }
     }
+
 
 
 
