@@ -500,11 +500,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(alarmTimeMillis,pendingIntent);
 
 
-//
-//        // Установка будильника
-//        if (alarmManager != null) {
-//            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
-//        }
+
+        // Установка будильника
+        if (alarmManager != null) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+        }
 
         // кодда будильнок срабатывает
         Intent intent1 = new Intent(con, AlarmActivity.class);
