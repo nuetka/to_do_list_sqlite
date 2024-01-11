@@ -488,31 +488,17 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private void setAlarm(int taskId, long alarmTimeMillis) {
         AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
 
-        Intent intent = new Intent(con, MainActivity.class); // открывается при нажатии будильника / Интент для связи переправки компоненктов
-        intent.putExtra("taskId", taskId); // передайте идентификатор задачи, чтобы определить, какую задачу отображать при срабатывании будильника
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);// второй на случай если приложение сейчас не запущено а первое почистить стек и текущий экземпляр на вершину
+        Intent intent = new Intent(con, AlarmActivity.class);
+        intent.putExtra("taskId", taskId);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE); // типо конверта в котором интенет
+        PendingIntent pendingIntent = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(alarmTimeMillis, pendingIntent);
 
-
-
-        AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(alarmTimeMillis,pendingIntent);
-
-
-
-        // Установка будильника
         if (alarmManager != null) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
         }
-
-        // кодда будильнок срабатывает
-        Intent intent1 = new Intent(con, AlarmActivity.class);
-        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);// второй на случай если приложение сейчас не запущено а первое почистить стек и текущий экземпляр на вершину
-        PendingIntent pendingIntent1 = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE); // типо конверта в котором интенет флаг значит заменить созданный заново передаваемым
-
-        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent1);
-        Toast.makeText(con, "Будильник установлен", Toast.LENGTH_SHORT).show();
     }
 
 
