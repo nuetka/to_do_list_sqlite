@@ -28,6 +28,9 @@
             android:exported="true"/>
         <activity
             android:name=".AlarmActivity"
+            android:theme="@style/Theme.AppCompat.Translucent"
+
+
             android:exported="true"/>
     </application>
 </manifest>
