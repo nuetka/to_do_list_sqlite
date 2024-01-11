@@ -1,10 +1,13 @@
 package com.example.todolist.Adapter;
 
+import static com.example.todolist.AddNewTask.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,9 +100,6 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
             } else {
                 holder.cat.setText(c);
             }
-
-
-        convertTimeFormat("34:55");
 
         if(item.getDuration().equals(":")){
             holder.dur.setVisibility(View.GONE);
@@ -201,8 +201,8 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     }
 
     public String convertTimeFormat(String originalTime) {
+        Log.e(TAG, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"+originalTime+"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         if (originalTime == null || !originalTime.matches("\\d{2}:\\d{2}")) {
-            throw new IllegalArgumentException("Invalid time format. Expected format is HH:mm.");
         }
 
         String[] parts = originalTime.split(":");

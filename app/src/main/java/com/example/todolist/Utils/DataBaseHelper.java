@@ -1,10 +1,20 @@
 package com.example.todolist.Utils;
 
 import static com.example.todolist.AddNewTask.TAG;
+import static com.example.todolist.AddNewTask.newInstance;
 
+import com.example.todolist.AlarmActivity;
+import com.example.todolist.MainActivity;
+import com.example.todolist.R;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -12,6 +22,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.example.todolist.Model.CategoryModel;
 import com.example.todolist.Model.NoteModel;
@@ -25,7 +36,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
 
@@ -64,10 +74,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String COL_NOTE_ID = "ID";
     private static final String COL_NOTE_DESCRIPTION = "DESCRIPTION";
     private static final String COL_NOTE_DATE = "DATE";
+    private  Context con;
 
 
     public DataBaseHelper(@Nullable Context context ) {
         super(context, DATABASE_NAME, null, 8 );
+        this.con=context;
     }
 
     @Override
@@ -169,7 +181,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_NOTES, COL_NOTE_DATE + "=?", new String[]{date});
     }
 
-    public void insertTask(ToDoModel model){
+    public void insertTask(ToDoModel model) throws ParseException {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_2 , model.getTask());
@@ -196,6 +208,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             completedValues.put(COL_COMPLETED_4, 0); // По умолчанию, задача не выполнена
 
             db.insert(TABLE_COMPLETED_DATES, null, completedValues);
+        }else{
+            // Получите время в миллисекундах для будильника (в данном примере, это время начала задачи)
+            long alarmTimeMillis = getAlarmTimeMillis(model);
+
+            // Установите будильник
+            setAlarm(model.getId(), alarmTimeMillis);
         }
     }
 
@@ -412,6 +430,89 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    @SuppressLint("Range")
+    public ToDoModel getTaskById(int taskId) {
+        db = this.getWritableDatabase();
+
+        String[] columns = {COL_1, COL_2, COL_3, PR, "DATE", COLUMN_CATEGORY_ID, ROUTINE, RED, RD, SNOTY, ENOTY, START, DURATION, ENDD};
+        String selection = COL_1 + " = ?";
+        String[] selectionArgs = {String.valueOf(taskId)};
+
+        Cursor cursor = db.query(TABLE_NAME, columns, selection, selectionArgs, null, null, null);
+
+        ToDoModel task = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            task = new ToDoModel();
+            task.setId(cursor.getInt(cursor.getColumnIndex(COL_1)));
+            task.setTask(cursor.getString(cursor.getColumnIndex(COL_2)));
+            task.setPriority(cursor.getInt(cursor.getColumnIndex(PR)));
+            task.setDate(cursor.getString(cursor.getColumnIndex("DATE")));
+            task.setCategoryId(cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID)));
+            task.setStart((cursor.getString(cursor.getColumnIndex(START))));
+            task.setEnd((cursor.getString(cursor.getColumnIndex(ENDD))));
+            task.setSnoty(cursor.getInt(cursor.getColumnIndex(SNOTY)));
+            task.setEnoty(cursor.getInt(cursor.getColumnIndex(ENOTY)));
+            task.setDuration((cursor.getString(cursor.getColumnIndex(DURATION))));
+            task.setIsRoutine(cursor.getInt(cursor.getColumnIndex(ROUTINE)));
+            task.setRepeatEndDate(cursor.getString(cursor.getColumnIndex(RED)));
+            task.setRepeatDays(cursor.getString(cursor.getColumnIndex(RD)));
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return task;
+    }
+
+    private long getAlarmTimeMillis(ToDoModel model) {
+        // Ваш код для получения времени в миллисекундах, например, из model.getStart() или model.getDate()
+
+        // Пример: Получение времени в миллисекундах из строки даты
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+        try {
+            Date date = dateFormat.parse(model.getDate() + " " + model.getStart());
+            if (date != null) {
+                return date.getTime();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    @SuppressLint("ScheduleExactAlarm")
+    private void setAlarm(int taskId, long alarmTimeMillis) {
+        AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(con, MainActivity.class); // открывается при нажатии будильника / Интент для связи переправки компоненктов
+        intent.putExtra("taskId", taskId); // передайте идентификатор задачи, чтобы определить, какую задачу отображать при срабатывании будильника
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);// второй на случай если приложение сейчас не запущено а первое почистить стек и текущий экземпляр на вершину
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE); // типо конверта в котором интенет
+
+
+
+
+        AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(alarmTimeMillis,pendingIntent);
+
+
+//
+//        // Установка будильника
+//        if (alarmManager != null) {
+//            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+//        }
+
+        // кодда будильнок срабатывает
+        Intent intent1 = new Intent(con, AlarmActivity.class);
+        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);// второй на случай если приложение сейчас не запущено а первое почистить стек и текущий экземпляр на вершину
+        PendingIntent pendingIntent1 = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE); // типо конверта в котором интенет флаг значит заменить созданный заново передаваемым
+
+        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent1);
+        Toast.makeText(con, "Будильник установлен", Toast.LENGTH_SHORT).show();
     }
 
 

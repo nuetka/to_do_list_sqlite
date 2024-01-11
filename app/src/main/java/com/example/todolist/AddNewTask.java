@@ -50,6 +50,7 @@ import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.text.ParseException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -112,7 +113,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        myDb = new DataBaseHelper(getContext());
+//        myDb = new DataBaseHelper(getContext());
         TextView addTaskTab = view.findViewById(R.id.imagesTextView);
         TextView addNoteTab = view.findViewById(R.id.videosTextView);
         final TextView priorityText = view.findViewById(R.id.textview);
@@ -685,8 +686,8 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     item.setSnoty(snoty);
                     item.setEnoty(enoty);
 
-                    Button pat1 = view.findViewById(R.id.from1);
-                    String strpat1 = pat1.getText().toString();
+
+                    String strpat1 = btn.getText().toString();
                     if (strpat1.equals("pick a time")) {
                         item.setStart("0");
                     } else {
@@ -694,30 +695,29 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     }
 
 
-                    Button pat2 = view.findViewById(R.id.from2);
-                    String strpat2 = pat2.getText().toString();
+                    String strpat2 = btn1.getText().toString();
                     if (strpat2.equals("pick a time")) {
                         item.setEnd("0");
                     } else {
-                        item.setEnd(strpat1);
+                        item.setEnd(strpat2);
                     }
 
-                    if (x.getVisibility() == View.VISIBLE) {
-
-                        String txt = (String) btn.getText();
-                        item.setStart(txt);
-                        // editText.setText(String.valueOf(yourValue));
-                    } else {
-                        item.setStart("0");
-                    }
-
-                    if (x1.getVisibility() == View.VISIBLE) {
-
-                        String txt = (String) btn1.getText();
-                        item.setStart(txt);
-                    } else {
-                        item.setStart("0");
-                    }
+//                    if (x.getVisibility() == View.VISIBLE) {
+//
+//                        String txt = (String) btn.getText();
+//                        item.setStart(txt);
+//                        // editText.setText(String.valueOf(yourValue));
+//                    } else {
+//                        item.setStart("0");
+//                    }
+//
+//                    if (x1.getVisibility() == View.VISIBLE) {
+//
+//                        String txt = (String) btn1.getText();
+//                        item.setStart(txt);
+//                    } else {
+//                        item.setStart("0");
+//                    }
 
                     EditText editText = view.findViewById(R.id.h);
                     EditText editText1 = view.findViewById(R.id.m);
@@ -730,7 +730,11 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     }
 
 
-                    myDb.insertTask(item);
+                    try {
+                        myDb.insertTask(item);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
 
                 }
@@ -787,6 +791,8 @@ public class AddNewTask extends BottomSheetDialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        myDb = new DataBaseHelper(context);
 
         try {
             dateRequestListener = (OnDateRequestListener) context;
