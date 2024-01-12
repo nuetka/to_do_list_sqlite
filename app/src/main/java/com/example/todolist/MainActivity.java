@@ -2,7 +2,11 @@ package com.example.todolist;
 
 import static android.app.PendingIntent.getActivity;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,16 +21,20 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.todolist.Adapter.ToDoAdapter;
 import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +52,9 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     private DataBaseHelper myDB;
     private List<ToDoModel> mList;
     private ToDoAdapter adapter;
+
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
 
     TextView dateTextView;
     ImageView calendarImage;
@@ -80,7 +91,56 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
                     Uri.parse("package:" + this.getPackageName()));
             this.startActivity(intent);
         }
-        dateTextView = (TextView) findViewById(R.id.textview);
+
+
+        drawerLayout = findViewById(R.id.drawerLayout);
+        NavigationView navigationView = findViewById(R.id.navigationView);
+        ImageButton btnOpenDrawer = findViewById(R.id.btnOpenDrawer);
+
+        actionBarDrawerToggle = new ActionBarDrawerToggle(
+                this,
+                drawerLayout,
+                R.string.drawer_open,
+                R.string.drawer_close
+        );
+
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        btnOpenDrawer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+            }
+        });
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                // Обработка выбора пункта меню
+                // Можете добавить свой код обработки событий здесь
+
+                // Закрываем боковое меню после выбора пункта
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
+
+
+
+
+
+    dateTextView = (TextView) findViewById(R.id.textview);
         previousButton = (ImageButton) findViewById(R.id.previousButton);
         nextButton = (ImageButton) findViewById(R.id.nextButton);
         filter = (ImageButton) findViewById(R.id.filter);
@@ -264,6 +324,15 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     @Override
     public String onRequestDate() {
         return dateTextView.getText().toString();
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
