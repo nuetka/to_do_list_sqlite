@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         btnOpenDrawer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         mRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerview.setAdapter(adapter);
 
-        mList = myDB.getAllTasks(strDate);
+        mList = myDB.getAllTasks(strDate, true);
         Collections.reverse(mList);
 
 
@@ -236,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
             @Override
             public void onClick(View v) {
                    Filter dialog = Filter.newInstance();
-                    dialog.show(getSupportFragmentManager(), AddNewTask.TAG);
+                    dialog.show(getSupportFragmentManager(), Filter.TAG);
             }
         });
 
@@ -294,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
 
 
     public void refresh(){
-        mList = myDB.getAllTasks(strDate);
+        mList = myDB.getAllTasks(strDate, true);
         Collections.reverse(mList);
         adapter.setTasks(mList);
         String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
@@ -308,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
 
     @Override
     public void onDialogClose(DialogInterface dialogInterface) {
-        mList = myDB.getAllTasks(strDate);
+        mList = myDB.getAllTasks(strDate, true);
         Collections.reverse(mList);
         String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
         if (sis != null && (!sis.equals(""))) {

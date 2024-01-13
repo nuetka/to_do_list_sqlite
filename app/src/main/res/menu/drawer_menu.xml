@@ -1,9 +1,30 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_item1"
-        android:title="Пункт меню 1" />
+        android:title="Сортировка" />
+
     <item
         android:id="@+id/menu_item2"
-        android:title="Пункт меню 2" />
-    <!-- Добавьте другие пункты меню, если нужно -->
+        android:title="Сменить тему" />
+    <!-- По категориям и по тому сколько пропущено -->
+
+    <item
+        android:id="@+id/menu_item3"
+        android:title="Перенос невыполненных задач" />
+
+    <item
+        android:id="@+id/menu_item4"
+        android:title="Сменить звук" />
+
+    <item
+        android:id="@+id/menu_item5"
+        android:title="Анализ производительности" />
+
+    <item
+        android:id="@+id/menu_item6"
+        android:title="Экоспорт Exel" />
+
+    <item
+        android:id="@+id/menu_item7"
+        android:title="Очистка" />
 </menu>

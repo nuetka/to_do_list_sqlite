@@ -1,12 +1,18 @@
 package com.example.todolist;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -16,8 +22,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todolist.Adapter.CategoryAdapter;
+import com.example.todolist.Model.NoteModel;
+import com.example.todolist.Model.ToDoModel;
+import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,11 +35,15 @@ import java.util.List;
 import java.util.Set;
 
 public class Filter extends BottomSheetDialogFragment {
+    public static final String TAG = "Filter";
 
-    private RadioButton radioButtonCheckAll;
-    private RadioButton radioButtonResetAll;
+    private RadioButton checkAll;
+    private RadioButton resetAll;
     private int lastCheckedId1 = -1;
+    private DataBaseHelper myyDb;
     Set<Integer> priority = new HashSet<>();
+    List<String> filters = new ArrayList<>();
+
 
 
 
@@ -49,10 +63,104 @@ public class Filter extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         final RadioGroup radioGroup1 = view.findViewById(R.id.radioGroup1);
+        myyDb = new DataBaseHelper(getContext());
 
-        radioButtonCheckAll = view.findViewById(R.id.o1);
-        radioButtonResetAll = view.findViewById(R.id.o2);
+        checkAll = view.findViewById(R.id.o1);
+        resetAll = view.findViewById(R.id.o2);
 //        lastCheckedId1 = radioGroup1.getCheckedRadioButtonId();
+        filters = myyDb.getFilter();
+
+
+
+
+        CheckBox odt = view.findViewById(R.id.one_day);
+
+//        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//
+//
+//                if(isChecked){
+//
+//                }
+
+
+//                if (filters.isEmpty()) {
+//                    // Если список пуст, добавляем новый элемент
+//                    filters.add(isChecked ? "1" : "0");
+//                } else {
+//                    // Если список не пуст, заменяем первый элемент
+//                    filters.set(0, isChecked ? "1" : "0");
+//                }
+//            }
+//        });
+
+        Button mSaveButton = view.findViewById(R.id.button_save);
+        Button CancelButton = view.findViewById(R.id.button_cancel);
+
+        CheckBox routine = view.findViewById(R.id.forever);
+        CheckBox temp = view.findViewById(R.id.temp);
+        CheckBox compl = view.findViewById(R.id.compl);
+        CheckBox uncompl = view.findViewById(R.id.uncompl);
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(odt.isChecked()){
+                    filters.set(0, "1");
+                }
+                else{
+                    filters.set(0, "0");
+                }
+
+
+                if(routine.isChecked()){
+                    filters.set(1, "1");
+                }
+                else{
+                    filters.set(1, "0");
+                }
+
+                if(temp.isChecked()){
+                    filters.set(2, "1");
+                }
+                else{
+                    filters.set(2, "0");
+                }
+
+                if(compl.isChecked()){
+                    filters.set(3, "1");
+                }
+                else{
+                    filters.set(3, "0");
+                }
+
+                if(uncompl.isChecked()){
+                    filters.set(4, "1");
+                }
+                else{
+                    filters.set(4, "0");
+                }
+
+
+
+
+                myyDb.updateFilter(filters);
+                dismiss();
+
+            }
+        });
+
+        CancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // не забыть удалить категорию если добавлениа
+                dismiss();
+            }
+        });
+
+
+
+
 
 
 // Получите ссылку на RecyclerView из макета
@@ -76,6 +184,19 @@ public class Filter extends BottomSheetDialogFragment {
         final RadioButton radioButton4 = view.findViewById(R.id.radioButton4);
         final RadioButton radioButton5 = view.findViewById(R.id.radioButton5);
 
+        radioButton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (priority.contains(3)) {
+                    radioButton3.setChecked(false);
+                    priority.remove(3);
+                } else {
+                    priority.add(3);
+                    radioButton3.setChecked(true);
+                }
+            }
+        });
+
         radioButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,19 +219,6 @@ public class Filter extends BottomSheetDialogFragment {
                 } else {
                     priority.add(2);
                     radioButton2.setChecked(true);
-                }
-            }
-        });
-
-        radioButton3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (priority.contains(3)) {
-                    radioButton3.setChecked(false);
-                    priority.remove(3);
-                } else {
-                    priority.add(3);
-                    radioButton3.setChecked(true);
                 }
             }
         });
@@ -147,29 +255,46 @@ public class Filter extends BottomSheetDialogFragment {
 
         // Установка слушателей на чекбоксы
         // Установка слушателей на радиокнопки
-        radioButtonCheckAll.setOnClickListener(new View.OnClickListener() {
+        checkAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (lastCheckedId1 == R.id.radioButton2) {
-                    radioButtonCheckAll.setChecked(false);
+                if (lastCheckedId1 == R.id.o1) {
+                    checkAll.setChecked(false);
                     lastCheckedId1 = -1;
                 } else {
-                    lastCheckedId1 = R.id.radioButton2;
+                    lastCheckedId1 = R.id.o1;
                 }
             }
         });
-        radioButtonResetAll.setOnClickListener(new View.OnClickListener() {
+        resetAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (lastCheckedId1 == R.id.radioButton2) {
-                    radioButtonResetAll.setChecked(false);
+                if (lastCheckedId1 == R.id.o2) {
+                    resetAll.setChecked(false);
                     lastCheckedId1 = -1;
                 } else {
-                    lastCheckedId1 = R.id.radioButton2;
+                    lastCheckedId1 = R.id.o2;
                 }
             }
         });
 
+
+
     }
+
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+
+        Activity activity = getActivity();
+        if (activity instanceof OnDialogCloseListener){
+            ((OnDialogCloseListener)activity).onDialogClose(dialog);
+        }
+    }
+
+
+
 }
 

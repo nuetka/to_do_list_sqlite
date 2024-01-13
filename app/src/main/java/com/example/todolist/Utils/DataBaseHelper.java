@@ -32,10 +32,12 @@ import com.example.todolist.Model.ToDoModel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -72,15 +74,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
 
-    private static final String TABLE_NOTES = "notes";
+    private static final String TABLE_NOTES = "notes_filters";
     private static final String COL_NOTE_ID = "ID";
+
     private static final String COL_NOTE_DESCRIPTION = "DESCRIPTION";
     private static final String COL_NOTE_DATE = "DATE";
     private  Context con;
 
 
+
+    private static final String SETTINGS_TABLE = "settings_table";
+
+    private static final String SETTING = "setting";
+    private static final String SETTING_ID = "ID"; // нулевой id - filter
+
+
     public DataBaseHelper(@Nullable Context context ) {
-        super(context, DATABASE_NAME, null, 8 );
+        super(context, DATABASE_NAME, null, 10 );
         this.con=context;
     }
 
@@ -133,6 +143,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 + COL_NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COL_NOTE_DESCRIPTION + " TEXT,"
                 + COL_NOTE_DATE + " TEXT)");
+
+           db.execSQL("CREATE TABLE IF NOT EXISTS " +  SETTINGS_TABLE+ "("
+                + SETTING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + SETTING + " TEXT)");
+
+                values.clear();
+                values.put(SETTING, "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]");
+                db.insert(SETTINGS_TABLE, null, values);
     }
 
 
@@ -141,6 +159,40 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
         onCreate(db);
+    }
+
+    public void updateFilter(List<String> filter) {
+        db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(SETTING , filter.toString());
+
+        db.update(SETTINGS_TABLE , values , "ID=?" , new String[]{"1"});
+    }
+
+    @SuppressLint("Range")
+    public List<String> getFilter() {
+        db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{"1"});
+
+        String filter = "";
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            filter = cursor.getString(cursor.getColumnIndex(SETTING));
+        }
+
+        cursor.close();
+
+        filter = filter.substring(1, filter.length() - 1); // Удаляем квадратные скобки
+        String[] parts = filter.split(",");
+        List<String> resultList = Arrays.asList(parts);
+
+// Если вам нужен именно ArrayList, а не List, вы можете создать новый ArrayList:
+        List<String> resultArrayList = new ArrayList<>(Arrays.asList(parts));
+
+        return resultArrayList;
     }
 
     public void insertNote(NoteModel note) {
@@ -321,7 +373,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public List<ToDoModel> getAllTasks(String date){
+    public List<ToDoModel> getAllTasks(String date, boolean isSortNeeded){
         Log.e(TAG, "Error message   "+date);
 
         db = this.getWritableDatabase();
@@ -405,7 +457,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             }
 
         }finally {
-            db.endTransaction();
             cursor.close();
         }
         Collections.sort(modelList, new Comparator<ToDoModel>() {
@@ -415,6 +466,99 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 return Integer.compare(task1.getStatus(), task2.getStatus());
             }
         });
+
+        if(isSortNeeded) {
+            Cursor cursor1 = null;
+            try {
+                cursor1 = db.rawQuery("SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?", new String[]{"1"});
+                if (cursor1 != null && cursor1.moveToFirst()) {
+                    String str = cursor1.getString(cursor1.getColumnIndex(SETTING));
+
+                    // Ваши дальнейшие действия с переменной str
+//                    ToDoModel task = new ToDoModel();
+//                    boolean good = true;
+//
+//                    if (str != null && !str.isEmpty()) {
+//
+//                        for (int i = 0; i < modelList.size(); i++) {
+//                            if (str.charAt(0) == 1) {
+//                                if (modelList.get(i).getIsRoutine() == 1) {
+//                                    good = false;
+//                                }
+//                            }
+//                            if (!good) {
+//                                modelList.remove(i);
+//                            }
+//                        }
+
+
+                    // Ваши дальнейшие действия с переменной str
+                    Iterator<ToDoModel> iterator = modelList.iterator();
+
+                    while (iterator.hasNext()) {
+                        ToDoModel model = iterator.next();
+                        Log.e("MyApp", "str.charAt(0): " + str.charAt(0) + ", model.getIsRoutine(): " + model.getIsRoutine());
+                        if (str.charAt(1) == '0' && model.getIsRoutine() == 0) {
+                            Log.e("MyApp", "Удаление: " + model);
+                            iterator.remove();
+                        }
+                        Log.e("MyApp", "Удаления не было: " + model);
+                        if (str.charAt(1) == '0' && model.getIsRoutine() == 1) {
+                            iterator.remove();
+                        }
+                        if (str.charAt(3) == '0' && model.getRepeatEndDate().equals("0")) {
+                            iterator.remove();
+                        }
+                        if (str.charAt(5) == '0' && model.getStatus() == 1) {
+                            iterator.remove();
+                        }
+                        if (str.charAt(7) == '0' && model.getStatus() == 0) { // невыполенные не нужны
+                            iterator.remove();
+                        }
+                    }
+
+
+                    }
+            } finally {
+                if (cursor1 != null) {
+                    cursor1.close();
+                }
+            }
+        }
+
+//        if(isSortNeeded) {
+//            Cursor cursor1 = null;
+//
+//
+//            cursor1 = db.rawQuery("SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?", new String[]{"0"});
+//
+//
+//            String str = (cursor1.getString(cursor1.getColumnIndex(SETTING)));
+
+
+            db.endTransaction();
+//            cursor1.close();
+//            ToDoModel task = new ToDoModel();
+//            boolean good = true;
+//
+//            if (str != null && !str.isEmpty()) {
+//
+//                for (int i = 0; i < modelList.size(); i++) {
+//                    if (str.charAt(0) == 1) {
+//                        if (modelList.get(i).getIsRoutine() == 1) {
+//                            good = false;
+//                        }
+//                    }
+//                    if (!good) {
+//                        modelList.remove(i);
+//                    }
+//                }
+
+           // }
+       // }
+
+
+
         return modelList;
     }
 
