@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -64,6 +65,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_CATEGORIES = "categories";
     private static final String COLUMN_CATEGORY_ID = "category_id";
     private static final String COLUMN_CATEGORY_NAME = "category_name";
+    private static final String IS_SELECTED = "is_selected";
 
     private static final String TABLE_COMPLETED_DATES = "completed_dates";
     private static final String COL_COMPLETED_1 = "ID";
@@ -98,6 +100,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CATEGORIES + "("
                     + COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + IS_SELECTED + " INTEGER DEFAULT 1,"
                     + COLUMN_CATEGORY_NAME + " TEXT)");
             // Вставка значений по умолчанию
             ContentValues values = new ContentValues();
@@ -149,7 +152,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 + SETTING + " TEXT)");
 
                 values.clear();
-                values.put(SETTING, "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]");
+                values.put(SETTING, "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0]");
                 db.insert(SETTINGS_TABLE, null, values);
     }
 
@@ -165,9 +168,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        values.put(SETTING , filter.toString());
+        // Преобразуйте список в строку в нужном вам формате
+        String filtostr = "[" + TextUtils.join(",", filter) + "]";
+        values.put(SETTING, filtostr);
 
-        db.update(SETTINGS_TABLE , values , "ID=?" , new String[]{"1"});
+        db.update(SETTINGS_TABLE, values, "ID=?", new String[]{"1"});
     }
 
     @SuppressLint("Range")
@@ -276,6 +281,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_CATEGORY_NAME, categoryName);
+        values.put(IS_SELECTED, 1);
 
         db.insert(TABLE_CATEGORIES, null, values);
     }
@@ -317,7 +323,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_NAME , "ID=?" , new String[]{String.valueOf(id)});
     }
 
-    public List<CategoryModel> getAllCategories(Context context) {
+    @SuppressLint("Range")
+    public List<CategoryModel> getAllCategories() {
         List<CategoryModel> categoriesList;
         categoriesList = new ArrayList<>();
         try {
@@ -331,13 +338,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     CategoryModel category = new CategoryModel();
                     category.setName(categoryName);
                     category.setId(categoryId);
+                    category.setSelected(cursor.getInt(cursor.getColumnIndex(IS_SELECTED)) == 1);
                     categoriesList.add(category);
                 } while (cursor.moveToNext());
             }
 
             cursor.close();
         }catch(Exception e){
-            Toast.makeText(context, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
 
         }
 
@@ -474,23 +481,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 if (cursor1 != null && cursor1.moveToFirst()) {
                     String str = cursor1.getString(cursor1.getColumnIndex(SETTING));
 
-                    // Ваши дальнейшие действия с переменной str
-//                    ToDoModel task = new ToDoModel();
-//                    boolean good = true;
-//
-//                    if (str != null && !str.isEmpty()) {
-//
-//                        for (int i = 0; i < modelList.size(); i++) {
-//                            if (str.charAt(0) == 1) {
-//                                if (modelList.get(i).getIsRoutine() == 1) {
-//                                    good = false;
-//                                }
-//                            }
-//                            if (!good) {
-//                                modelList.remove(i);
-//                            }
-//                        }
-
 
                     // Ваши дальнейшие действия с переменной str
                     Iterator<ToDoModel> iterator = modelList.iterator();
@@ -502,17 +492,16 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                             Log.e("MyApp", "Удаление: " + model);
                             iterator.remove();
                         }
-                        Log.e("MyApp", "Удаления не было: " + model);
-                        if (str.charAt(1) == '0' && model.getIsRoutine() == 1) {
+                        else if (str.charAt(1) == '0' && model.getIsRoutine() == 1) {
                             iterator.remove();
                         }
-                        if (str.charAt(3) == '0' && model.getRepeatEndDate().equals("0")) {
+                        else if (str.charAt(3) == '0' && model.getRepeatEndDate().equals("0")) {
                             iterator.remove();
                         }
-                        if (str.charAt(5) == '0' && model.getStatus() == 1) {
+                        else if (str.charAt(5) == '0' && model.getStatus() == 1) {
                             iterator.remove();
                         }
-                        if (str.charAt(7) == '0' && model.getStatus() == 0) { // невыполенные не нужны
+                        else if (str.charAt(7) == '0' && model.getStatus() == 0) { // невыполенные не нужны
                             iterator.remove();
                         }
                     }
@@ -526,38 +515,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             }
         }
 
-//        if(isSortNeeded) {
-//            Cursor cursor1 = null;
-//
-//
-//            cursor1 = db.rawQuery("SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?", new String[]{"0"});
-//
-//
-//            String str = (cursor1.getString(cursor1.getColumnIndex(SETTING)));
-
-
             db.endTransaction();
-//            cursor1.close();
-//            ToDoModel task = new ToDoModel();
-//            boolean good = true;
-//
-//            if (str != null && !str.isEmpty()) {
-//
-//                for (int i = 0; i < modelList.size(); i++) {
-//                    if (str.charAt(0) == 1) {
-//                        if (modelList.get(i).getIsRoutine() == 1) {
-//                            good = false;
-//                        }
-//                    }
-//                    if (!good) {
-//                        modelList.remove(i);
-//                    }
-//                }
-
-           // }
-       // }
-
-
 
         return modelList;
     }
@@ -636,7 +594,165 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return 0;
     }
 
+    public void updateCategorySelectedStatus(int categoryId, boolean isSelected) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(IS_SELECTED, isSelected ? 1 : 0);
+        db.update(TABLE_CATEGORIES, values, COLUMN_CATEGORY_ID + " = ?", new String[]{String.valueOf(categoryId)});
+        db.close();
+    }
 
+    public String[] getSelectedCategories() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> selectedCategories = new ArrayList<>();
+
+        try {
+            Cursor cursor = db.rawQuery("SELECT " + COLUMN_CATEGORY_NAME + " FROM " + TABLE_CATEGORIES + " WHERE " + IS_SELECTED + " = 1", null);
+            if (cursor.moveToFirst()) {
+                do {
+                    @SuppressLint("Range") String categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME));
+                    selectedCategories.add(categoryName);
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return selectedCategories.toArray(new String[0]);
+    }
+
+    public void updateAllCategoriesSelection(boolean isSelected) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(IS_SELECTED, isSelected ? 1 : 0);
+        db.update(TABLE_CATEGORIES, values, null, null);
+        db.close();
+    }
+
+    public void updateCategorySelectionById(int categoryId, boolean isSelected) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(IS_SELECTED, isSelected ? 1 : 0);
+        String selection = COLUMN_CATEGORY_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(categoryId) };
+        db.update(TABLE_CATEGORIES, values, selection, selectionArgs);
+        db.close();
+    }
+
+    @SuppressLint("Range")
+    public boolean isAnySelected() {
+        db = this.getReadableDatabase();
+        Cursor cursor = null;
+        boolean isSelected = false;
+
+        try {
+            String query = "SELECT COUNT(*) FROM categories WHERE is_selected = 0";
+            cursor = db.rawQuery(query, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Проверяем, есть ли хотя бы одна отмеченная категория
+
+                if((cursor.getInt(0) > 0)){
+                    isSelected=true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+
+
+//        String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
+//        Cursor cursor1 = db.rawQuery(query, new String[]{"1"});
+//
+//        String filter = "";
+//
+//
+//        if (cursor1 != null && cursor1.moveToFirst()) {
+//            filter = cursor1.getString(cursor1.getColumnIndex(SETTING));
+//        }
+//
+//        cursor1.close();
+//
+//        for(int i=0; i<16; i++){
+//            if((i%2)==0) {
+//                if (filter.charAt(i + 1) != '0') {
+//                    isSelected = true;
+//                }
+//            }
+//        }
+
+        String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
+        Cursor cursor1 = db.rawQuery(query, new String[]{"1"});
+
+        String filter = "";
+
+
+        if (cursor1 != null && cursor1.moveToFirst()) {
+            filter = cursor1.getString(cursor1.getColumnIndex(SETTING));
+        }
+
+        cursor1.close();
+
+        for(int i=0; i<13; i++) {
+            if ((i % 2) == 0) {
+                if (filter.charAt(i + 1) == '0') {
+                    isSelected = true;
+                }
+            }
+        }
+
+        filter = filter.substring(1, filter.length() - 1); // Удаляем квадратные скобки
+        String[] parts = filter.split(",");
+        List<String> resultList = Arrays.asList(parts);
+
+// Если вам нужен именно ArrayList, а не List, вы можете создать новый ArrayList:
+        List<String> resultArrayList = new ArrayList<>(Arrays.asList(parts));
+
+
+
+           for(int j=14; j<17; j++){
+               if(!resultArrayList.get(j).equals("0")){
+                   isSelected=true;
+               }
+           }
+
+
+
+        return isSelected;
+    }
+
+//    @SuppressLint("Range")
+//    public boolean isAnySelected() {
+//        SQLiteDatabase db = this.getReadableDatabase(); // Изменение здесь
+//
+//        Cursor cursor = null;
+//        boolean isSelected = false;
+//
+//        try {
+//            String query = "SELECT COUNT(*) FROM categories WHERE is_selected = 1";
+//            cursor = db.rawQuery(query, null);
+//
+//            if (cursor != null && cursor.moveToFirst()) {
+//                // Проверяем, есть ли хотя бы одна отмеченная категория
+//                isSelected = cursor.getInt(0) > 0;
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+//
+//        return isSelected;
+//    }
 
     @SuppressLint("ScheduleExactAlarm")
     private void setAlarm(int taskId, long alarmTimeMillis, String taskText) {

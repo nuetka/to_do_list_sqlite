@@ -1,0 +1,114 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/imagesTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:layout_toLeftOf="@+id/centerPoint"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="сортировка"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
+    <View
+        android:id="@+id/imagesUnderline"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_below="@id/imagesTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="0dp"
+        android:textStyle="bold"
+        android:layout_toLeftOf="@+id/centerPoint"
+        android:layout_weight="1"
+        android:background="@android:color/black" />
+
+    <View
+        android:id="@+id/centerPoint"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+
+    <LinearLayout
+        android:id="@+id/lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <CheckBox
+            android:id="@+id/one_day"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:text="one-day tasks"/>
+
+        <CheckBox
+            android:id="@+id/forever"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:text="routine"/>
+
+        <CheckBox
+            android:id="@+id/temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="temporal routine"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/lay"
+        android:layout_marginTop="9dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+
+        <Button
+            android:id="@+id/button_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="20dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Cancel"
+            android:textColor="@color/colorWhite"
+            android:textSize="17dp" />
+
+
+        <Button
+            android:id="@+id/button_save"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Save"
+            android:textColor="@color/colorWhite"
+            android:textSize="20dp" />
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>
+

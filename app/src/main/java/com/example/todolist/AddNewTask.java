@@ -868,7 +868,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
     }
 
     private void updateCategorySpinner() {
-        categories = myDb.getAllCategories(getContext());
+        categories = myDb.getAllCategories();
 
         if (isNewCategoryAdded) {
             // Сортируем список CategoryModel по убыванию id

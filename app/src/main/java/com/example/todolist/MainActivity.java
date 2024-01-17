@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     private List<ToDoModel> mList;
     private ToDoAdapter adapter;
 
+    View point1;
+
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
@@ -93,6 +95,11 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         }
 
 
+
+
+
+
+
         drawerLayout = findViewById(R.id.drawerLayout);
         NavigationView navigationView = findViewById(R.id.navigationView);
         ImageButton btnOpenDrawer = findViewById(R.id.btnOpenDrawer);
@@ -129,11 +136,18 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 // Обработка выбора пункта меню
-                // Можете добавить свой код обработки событий здесь
-
-                // Закрываем боковое меню после выбора пункта
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return true;
+                int id = item.getItemId();
+                if (id == R.id.menu_item1) {
+                    // Вызов вашего диалогового окна для сортировки
+                    // Например, откройте BottomSheetDialogFragment
+                    Filter filterDialog = Filter.newInstance();
+                    filterDialog.show(getSupportFragmentManager(), Filter.TAG);
+                    return true;
+                } else {
+                    // Закрываем боковое меню после выбора пункта, кроме "Сортировка"
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return true;
+                }
             }
         });
 
@@ -156,6 +170,12 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         // установка текущей даты
         strDate = sdf.format(new Date());
         dateTextView.setText(strDate);
+
+        point1 = (View) findViewById(R.id.point1);
+        if(myDB.isAnySelected()==true){
+            point1.setVisibility(View.VISIBLE);
+        }
+
 
         String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
         if (sis != null && (!sis.equals(""))) {
@@ -303,6 +323,12 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
             point.setVisibility(View.VISIBLE);
         }else{
             point.setVisibility(View.GONE);
+        }
+
+        if(myDB.isAnySelected()==true){
+            point1.setVisibility(View.VISIBLE);
+        }else{
+            point1.setVisibility(View.GONE);
         }
         adapter.notifyDataSetChanged();
     }

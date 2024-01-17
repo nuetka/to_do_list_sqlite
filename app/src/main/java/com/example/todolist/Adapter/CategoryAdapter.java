@@ -1,6 +1,9 @@
 package com.example.todolist.Adapter;
 
+import com.example.todolist.Model.CategoryModel;
 import com.example.todolist.R;
+import com.example.todolist.Utils.DataBaseHelper;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +12,19 @@ import android.widget.CheckBox;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
-    private List<String> categories;
+    private List<CategoryModel> categories;
+    private DataBaseHelper dbHelper;
 
-    public CategoryAdapter(List<String> categories) {
+    public CategoryAdapter(List<CategoryModel> categories, DataBaseHelper dbHelper) {
         this.categories = categories;
+        this.dbHelper = dbHelper;
     }
 
     @NonNull
@@ -28,7 +36,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
-        String category = categories.get(position);
+        CategoryModel category = categories.get(position);
         holder.bind(category);
     }
 
@@ -37,7 +45,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         return categories.size();
     }
 
-    static class CategoryViewHolder extends RecyclerView.ViewHolder {
+    class CategoryViewHolder extends RecyclerView.ViewHolder {
 
         private CheckBox categoryCheckBox;
 
@@ -46,9 +54,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             categoryCheckBox = itemView.findViewById(R.id.categoryCheckBox);
         }
 
-        void bind(String category) {
-            categoryCheckBox.setText(category);
-            // Дополнительная логика при необходимости
+        void bind(CategoryModel category) {
+            categoryCheckBox.setText(category.getName());
+            categoryCheckBox.setChecked(category.isSelected());
+
+            categoryCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                // Обновляем состояние в базе данных
+                category.setSelected(isChecked); // Обновляем модель
+                dbHelper.updateCategorySelectedStatus(category.getId(), isChecked);
+            });
         }
     }
 }

@@ -91,7 +91,9 @@
                 tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
             <View
+                android:id="@+id/point1"
                 android:layout_width="10dp"
+                android:visibility="gone"
                 android:layout_height="10dp"
                 android:layout_gravity="top|end"
                 android:layout_marginTop="4dp"
@@ -106,7 +108,7 @@
             android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:backgroundTint="@color/colorWhite"
-            android:src="@drawable/baseline_settings_24"
+            android:src="@drawable/baseline_menu_24"
             tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
 
