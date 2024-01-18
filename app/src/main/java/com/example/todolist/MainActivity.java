@@ -95,11 +95,6 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         }
 
 
-
-
-
-
-
         drawerLayout = findViewById(R.id.drawerLayout);
         NavigationView navigationView = findViewById(R.id.navigationView);
         ImageButton btnOpenDrawer = findViewById(R.id.btnOpenDrawer);
@@ -143,13 +138,26 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
                     Filter filterDialog = Filter.newInstance();
                     filterDialog.show(getSupportFragmentManager(), Filter.TAG);
                     return true;
-                } else {
+//                } else {
                     // Закрываем боковое меню после выбора пункта, кроме "Сортировка"
-                    drawerLayout.closeDrawer(GravityCompat.START);
+//                    drawerLayout.closeDrawer(GravityCompat.START);
+//                    return true;
+                }
+
+                if (id == R.id.menu_item2) {
+//                    int completedTasks = myDB.getCompletedTasksCount();
+//                    int totalTasks = myDB.getTotalTasksCount();
+
+                    CircleChartDialog chartDialog = CircleChartDialog.newInstance();
+                    chartDialog.show(getSupportFragmentManager(), "circleChartDialog");
                     return true;
                 }
+
+                return false;
             }
+
         });
+
 
 
 

@@ -164,6 +164,46 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+
+
+    public int getCompletedTasksCountInRange(String startDate, String endDate) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_NAME +
+                " WHERE " + COL_COMPLETED_4 + " = 1" +
+                " AND " + "DATE" + " BETWEEN ? AND ?";
+        Cursor cursor = db.rawQuery(query, new String[]{startDate, endDate});
+        int count = 0;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return count;
+    }
+
+    public int getTotalTasksCountInRange(String startDate, String endDate) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_NAME +
+                " WHERE " + "DATE" + " BETWEEN ? AND ?";
+        Cursor cursor = db.rawQuery(query, new String[]{startDate, endDate});
+        int count = 0;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return count;
+    }
+
+
     public void updateFilter(List<String> filter) {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
