@@ -22,7 +22,7 @@
 
     <item
         android:id="@+id/menu_item6"
-        android:title="Экоспорт Exel" />
+        android:title="Экоспорт Excel" />
 
     <item
         android:id="@+id/menu_item7"

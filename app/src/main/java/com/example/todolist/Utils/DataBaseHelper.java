@@ -166,42 +166,165 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
 
+    @SuppressLint("Range")
     public int getCompletedTasksCountInRange(String startDate, String endDate) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT COUNT(*) FROM " + TABLE_NAME +
+
+        // Query for completed tasks from main table
+        String queryMainTable = "SELECT COUNT(*) FROM " + TABLE_NAME +
                 " WHERE " + COL_COMPLETED_4 + " = 1" +
                 " AND " + "DATE" + " BETWEEN ? AND ?";
-        Cursor cursor = db.rawQuery(query, new String[]{startDate, endDate});
-        int count = 0;
 
-        if (cursor != null && cursor.moveToFirst()) {
-            count = cursor.getInt(0);
+        Cursor cursorMainTable = db.rawQuery(queryMainTable, new String[]{startDate, endDate});
+        int countMainTable = 0;
+
+        if (cursorMainTable != null && cursorMainTable.moveToFirst()) {
+            countMainTable = cursorMainTable.getInt(0);
         }
 
-        if (cursor != null) {
-            cursor.close();
+        if (cursorMainTable != null) {
+            cursorMainTable.close();
         }
 
-        return count;
+        // Query for completed tasks from completed dates table
+        String queryCompletedDatesTable = "SELECT COUNT(*) FROM " + TABLE_COMPLETED_DATES +
+                " WHERE " + COL_COMPLETED_4 + " = 1" +
+                " AND " + COL_COMPLETED_3 + " BETWEEN ? AND ?";
+
+        Cursor cursorCompletedDatesTable = db.rawQuery(queryCompletedDatesTable, new String[]{startDate, endDate});
+        int countCompletedDatesTable = 0;
+
+        if (cursorCompletedDatesTable != null && cursorCompletedDatesTable.moveToFirst()) {
+            countCompletedDatesTable = cursorCompletedDatesTable.getInt(0);
+        }
+
+        if (cursorCompletedDatesTable != null) {
+            cursorCompletedDatesTable.close();
+        }
+
+        // Sum up the counts
+        int totalCount = countMainTable + countCompletedDatesTable;
+
+        return totalCount;
     }
+
 
     public int getTotalTasksCountInRange(String startDate, String endDate) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT COUNT(*) FROM " + TABLE_NAME +
-                " WHERE " + "DATE" + " BETWEEN ? AND ?";
-        Cursor cursor = db.rawQuery(query, new String[]{startDate, endDate});
-        int count = 0;
+        int routineTaskCount = 0;
 
-        if (cursor != null && cursor.moveToFirst()) {
-            count = cursor.getInt(0);
+        // Query for non-routine tasks
+        String queryNonRoutine = "SELECT COUNT(*) FROM " + TABLE_NAME +
+                " WHERE " + "DATE" + " BETWEEN ? AND ?" +
+                " AND " + ROUTINE + " = 0";
+
+        Cursor cursorNonRoutine = db.rawQuery(queryNonRoutine, new String[]{startDate, endDate});
+        int countNonRoutine = 0;
+
+        if (cursorNonRoutine != null && cursorNonRoutine.moveToFirst()) {
+            countNonRoutine = cursorNonRoutine.getInt(0);
         }
 
-        if (cursor != null) {
-            cursor.close();
+        if (cursorNonRoutine != null) {
+            cursorNonRoutine.close();
+        }
+
+        // Query for routine tasks within the date range, considering the different scenarios
+        String queryRoutine = "SELECT " + "DATE" + ", " + RED + ", " + RD +
+                " FROM " + TABLE_NAME +
+                " WHERE " + "DATE" + " BETWEEN ? AND ?" +
+                " AND " + ROUTINE + " = 1";
+
+        Cursor cursorRoutine = db.rawQuery(queryRoutine, new String[]{startDate, endDate});
+        ArrayList<String[]> routineTasks = new ArrayList<>();
+
+        if (cursorRoutine != null) {
+            while (cursorRoutine.moveToNext()) {
+                @SuppressLint("Range") String date = cursorRoutine.getString(cursorRoutine.getColumnIndex("DATE"));
+                @SuppressLint("Range") String red = cursorRoutine.getString(cursorRoutine.getColumnIndex(RED));
+                @SuppressLint("Range") String repeatDays = cursorRoutine.getString(cursorRoutine.getColumnIndex(RD));
+                routineTasks.add(new String[]{date, red, repeatDays});
+                routineTaskCount += calculateRoutineTaskCount(routineTasks, startDate, endDate);
+            }
+            cursorRoutine.close();
+        }
+
+        int totalCount = countNonRoutine + routineTaskCount;
+
+        return totalCount;
+    }
+
+    public int calculateRoutineTaskCount(ArrayList<String[]> routineTasks, String startDate, String endDate) {
+        int count = 0;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+        try {
+            Date start = sdf.parse(startDate);
+            Date end = sdf.parse(endDate);
+
+            Calendar calendar = Calendar.getInstance();
+
+            for (String[] task : routineTasks) {
+                String taskDate = task[0];
+                String red = task[1];
+                String repeatDays = task[2];
+
+                Date taskStartDate = sdf.parse(taskDate);
+                Date taskEndDate = red.equals("0") ? end : sdf.parse(red); // Если RED = 0, задача повторяется до endDate
+
+                // Итерируем по каждой дате в диапазоне
+                for (Date date = start; !date.after(end); ) {
+                    // Проверяем, попадает ли текущая дата в диапазон повторения задачи
+                    if (!date.before(taskStartDate) && !date.after(taskEndDate)) {
+                        // Проверяем, соответствует ли день недели задаче
+                        if (isDayOfWeek(sdf.format(date), repeatDays)) {
+                            count++;
+                        }
+                    }
+
+                    // Переходим к следующему дню
+                    calendar.setTime(date);
+                    calendar.add(Calendar.DATE, 1);
+                    date = calendar.getTime();
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
         return count;
     }
+//    public int calculateRoutineTaskCount(ArrayList<String[]> routineTasks, String startDate, String endDate) {
+//        int count = 0;
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        Calendar calendar = Calendar.getInstance();
+//
+//        for (String[] task : routineTasks) {
+//            String date = task[0];
+//            String red = task[1];
+//            String repeatDays = task[2];
+//
+//            try {
+//                Date taskDate = sdf.parse(date);
+//                Date end = sdf.parse(endDate);
+//                Date repeatEnd = red.equals("0") ? end : sdf.parse(red);
+//
+//                calendar.setTime(taskDate);
+//                while (!calendar.getTime().after(repeatEnd) && !calendar.getTime().after(end)) {
+//                    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1; // Понедельник = 0
+//                    if (repeatDays.charAt(dayOfWeek) == '1') {
+//                        count++;
+//                    }
+//                    calendar.add(Calendar.DAY_OF_MONTH, 1);
+//                }
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return count;
+//    }
+
 
 
     public void updateFilter(List<String> filter) {
@@ -301,12 +424,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         if (model.getIsRoutine()==1) { // проверить на совпадение с repeat dates
             // Если задача рутинная, добавьте информацию о рутинной задаче в таблицу с прошедшими датами
-            ContentValues completedValues = new ContentValues();
-            completedValues.put(COL_COMPLETED_2, taskId);
-            completedValues.put(COL_COMPLETED_3, model.getDate());
-            completedValues.put(COL_COMPLETED_4, 0); // По умолчанию, задача не выполнена
+            if (isDayOfWeek(model.getDate(), model.getRepeatDays())) {
+                ContentValues completedValues = new ContentValues();
+                completedValues.put(COL_COMPLETED_2, taskId);
+                completedValues.put(COL_COMPLETED_3, model.getDate());
+                completedValues.put(COL_COMPLETED_4, 0); // По умолчанию, задача не выполнена
 
-            db.insert(TABLE_COMPLETED_DATES, null, completedValues);
+                db.insert(TABLE_COMPLETED_DATES, null, completedValues);
+            }
         }else{
             // Получите время в миллисекундах для будильника (в данном примере, это время начала задачи)
             long alarmTimeMillis = getAlarmTimeMillis(model);
@@ -451,6 +576,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
                         Log.e(TAG, "Error message   "+task.getIsRoutine());
 
+                        boolean passed = false;
 
                         // Existing routine task check
                         if (task.getIsRoutine() == 1) {
@@ -468,25 +594,30 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                             if (completedCursor.moveToFirst()) {
                                 // Task exists for this date
                                 task.setStatus(completedCursor.getInt(completedCursor.getColumnIndex(COL_COMPLETED_4)));
+                                passed=true;
                             } else {
                                 // Task does not exist for this date, check if it's before the repeat end date
-                                Cursor taskCursor = db.rawQuery("SELECT " + RED + " FROM " + TABLE_NAME +
+                                Cursor taskCursor = db.rawQuery("SELECT " + RED + ", " + RD + " FROM " + TABLE_NAME +
                                         " WHERE " + COL_1 + " = ?", new String[]{String.valueOf(routineTaskId)});
 
                                 if (taskCursor.moveToFirst()) {
                                     String repeatEndDate = taskCursor.getString(taskCursor.getColumnIndex(RED));
+                                    String rd = taskCursor.getString(taskCursor.getColumnIndex(RD));
                                     Log.e(TAG, "Error message   "+repeatEndDate);
                                     if (repeatEndDate.equals("0") || compareDates(date, repeatEndDate) <= 0) {
-                                        // Create a new task with status 0
-                                        ContentValues completedValues = new ContentValues();
-                                        completedValues.put(COL_COMPLETED_2, routineTaskId);
-                                        completedValues.put(COL_COMPLETED_3, date);
-                                        completedValues.put(COL_COMPLETED_4, 0); // Default status
+                                        if (isDayOfWeek(date, rd)) {
+                                            passed=true;
+                                            // Create a new task with status 0
+                                            ContentValues completedValues = new ContentValues();
+                                            completedValues.put(COL_COMPLETED_2, routineTaskId);
+                                            completedValues.put(COL_COMPLETED_3, date);
+                                            completedValues.put(COL_COMPLETED_4, 0); // Default status
 
-                                        db.insert(TABLE_COMPLETED_DATES, null, completedValues);
+                                            db.insert(TABLE_COMPLETED_DATES, null, completedValues);
 
-                                        // Set status for the new task
-                                        task.setStatus(0);
+                                            // Set status for the new task
+                                            task.setStatus(0);
+                                        }
                                     }
                                 }
                                 taskCursor.close();
@@ -496,7 +627,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         else{
                             task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         }
-                        if((task.getIsRoutine()==1 && (task.getRepeatEndDate().equals("0") || compareDates(date, task.getRepeatEndDate()) <= 0))||task.getIsRoutine()==0) {
+                        if((task.getIsRoutine()==1 && (passed))||task.getIsRoutine()==0) {
                             modelList.add(task);
                         }
                     } while (cursor.moveToNext());
@@ -558,6 +689,31 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             db.endTransaction();
 
         return modelList;
+    }
+
+    public static boolean isDayOfWeek(String dateStr, String repeatDays) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+        try {
+            Date date = sdf.parse(dateStr);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            // Понедельник = 0
+
+
+
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 2; // Понедельник = 0
+            if (dayOfWeek == -1) { // Воскресенье становится 6
+                dayOfWeek = 6;
+            }
+            // Проверяем, соответствует ли день недели
+            return repeatDays.charAt(dayOfWeek) == '1';
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false; // Если произошла ошибка парсинга даты, возвращаем false
+        }
     }
 
     private int compareDates(String date1, String date2) {

@@ -5,22 +5,32 @@ import static android.app.PendingIntent.getActivity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -35,7 +45,9 @@ import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.Utils.DataBaseHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,14 +56,19 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+import android.Manifest;
 
 public class MainActivity extends AppCompatActivity implements AddNewTask.OnDateRequestListener, OnDialogCloseListener {
+
 
     private RecyclerView mRecyclerview;
     private FloatingActionButton fab;
     private DataBaseHelper myDB;
     private List<ToDoModel> mList;
+    private static final int MY_PERMISSIONS_REQUEST = 1;
     private ToDoAdapter adapter;
+
 
     View point1;
 
@@ -73,27 +90,31 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
-                Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                startActivity(intent);
-            }
-        }
-//
+//        checkAndRequestPermissions();
+
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-//            // Предложите пользователю включить разрешение
 //            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
 //                    Uri.parse("package:" + this.getPackageName()));
 //            this.startActivity(intent);
 //        }
+//
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + this.getPackageName()));
-            this.startActivity(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+            startActivity(intent);
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+            startActivity(intent);
+        }
 
         drawerLayout = findViewById(R.id.drawerLayout);
         NavigationView navigationView = findViewById(R.id.navigationView);
@@ -144,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
 //                    return true;
                 }
 
-                if (id == R.id.menu_item2) {
+                if (id == R.id.menu_item5) {
 //                    int completedTasks = myDB.getCompletedTasksCount();
 //                    int totalTasks = myDB.getTotalTasksCount();
 
@@ -153,9 +174,26 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
                     return true;
                 }
 
+                if (id == R.id.menu_item6) {
+                    List<ToDoModel> tasks = mList;
+
+                    // Путь к папке "Загрузки"
+                    File downloadsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    String fileName = "ваш_файл.xlsx";
+                    String filePath = new File(downloadsFolder, fileName).getAbsolutePath();
+
+                    // Вызовите метод для сохранения задач в Excel
+                    ExcelExporter.exportTasksToExcel(tasks, filePath);
+
+                    // Отображение уведомления о завершении
+                    Log.d("Notification", "File saved at: " + filePath);
+                    createFileReadyNotification(fileName, "Файл успешно сохранен в папке 'Загрузки'");
+
+                    return true;
+                }
+
                 return false;
             }
-
         });
 
 
@@ -272,13 +310,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         ItemTouchHelper itemTouchHelperForBook = new ItemTouchHelper(new RecyclerViewTouchHelper(adapter));
         itemTouchHelperForBook.attachToRecyclerView(mRecyclerview);
 
-
-
-
         }
-
-
-
 
     private void updateDateTextView() {
         strDate = sdf.format(selectedDate.getTime());
@@ -370,4 +402,79 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint({"NotificationPermission", "MissingPermission"})
+    public void createFileReadyNotification(String title, String description) {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        // Создание канала уведомлений для Android O и выше
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("YOUR_CHANNEL_ID", "YOUR_CHANNEL_NAME", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("YOUR_CHANNEL_DESCRIPTION");
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "YOUR_CHANNEL_ID")
+                .setContentTitle(title)
+                .setContentText(description)
+                .setSmallIcon(R.drawable.ic_file_download) // Замените на вашу иконку
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        // Используйте статическую переменную для генерации уникального идентификатора
+        int notificationId = generateUniqueId();
+        notificationManager.notify(notificationId, builder.build());
+    }
+
+    // Метод для генерации уникального идентификатора уведомления
+    private static int uniqueId = 0;
+
+    private int generateUniqueId() {
+        return uniqueId++;
+    }
+//    private void checkAndRequestPermissions() {
+//        // Проверяем, есть ли уже разрешения
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED ||
+//                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//
+//                // Если разрешения не предоставлены, показываем Snackbar с объяснением
+//                Snackbar.make(findViewById(android.R.id.content), "Нужны разрешения для работы приложения", Snackbar.LENGTH_INDEFINITE)
+//                        .setAction("OK", new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                // Запрашиваем разрешения
+//                                ActivityCompat.requestPermissions(MainActivity.this,
+//                                        new String[]{
+//                                                Manifest.permission.POST_NOTIFICATIONS,
+//                                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+//                                        },
+//                                        MY_PERMISSIONS_REQUEST);
+//                            }
+//                        }).show();
+//            }
+//        }
+//    }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == MY_PERMISSIONS_REQUEST) {
+//            // Проверяем результаты запроса разрешений
+//            boolean allPermissionsGranted = true;
+//            for (int grantResult : grantResults) {
+//                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+//                    allPermissionsGranted = false;
+//                    break;
+//                }
+//            }
+//
+//            if (allPermissionsGranted) {
+//                // Все разрешения предоставлены, можно продолжать работу приложения
+//            } else {
+//                // Не все разрешения предоставлены
+//                Snackbar.make(findViewById(android.R.id.content), "Не все разрешения предоставлены", Snackbar.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 }
+
+
