@@ -107,6 +107,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             values.put(COLUMN_CATEGORY_NAME, "нет");
             db.insert(TABLE_CATEGORIES, null, values);
 
+            values.clear();
             values.put(COLUMN_CATEGORY_NAME, "Работа");
             db.insert(TABLE_CATEGORIES, null, values);
 
@@ -154,6 +155,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 values.clear();
                 values.put(SETTING, "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0]");
                 db.insert(SETTINGS_TABLE, null, values);
+
+                values.clear();
+                values.put(SETTING, "[1,0,0]");
+                db.insert(SETTINGS_TABLE, null, values);
     }
 
 
@@ -164,6 +169,27 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    @SuppressLint("Range")
+    public int getCategoryIdByName(String categoryName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT " + COLUMN_CATEGORY_ID + " FROM " + TABLE_CATEGORIES +
+                " WHERE " + COLUMN_CATEGORY_NAME + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{categoryName});
+
+        int categoryId = -1; // Значение по умолчанию, если категория не найдена
+
+        if (cursor != null && cursor.moveToFirst()) {
+            categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID));
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return categoryId;
+    }
 
 
     @SuppressLint("Range")
@@ -338,11 +364,48 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.update(SETTINGS_TABLE, values, "ID=?", new String[]{"1"});
     }
 
+    public void updateSort(List<String> filter) {
+        db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        // Преобразуйте список в строку в нужном вам формате
+        String filtostr = "[" + TextUtils.join(",", filter) + "]";
+        values.put(SETTING, filtostr);
+
+        db.update(SETTINGS_TABLE, values, "ID=?", new String[]{"2"});
+    }
+
     @SuppressLint("Range")
     public List<String> getFilter() {
         db = this.getReadableDatabase();
         String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
         Cursor cursor = db.rawQuery(query, new String[]{"1"});
+
+        String filter = "";
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            filter = cursor.getString(cursor.getColumnIndex(SETTING));
+        }
+
+        cursor.close();
+
+        filter = filter.substring(1, filter.length() - 1); // Удаляем квадратные скобки
+        String[] parts = filter.split(",");
+        List<String> resultList = Arrays.asList(parts);
+
+// Если вам нужен именно ArrayList, а не List, вы можете создать новый ArrayList:
+        List<String> resultArrayList = new ArrayList<>(Arrays.asList(parts));
+
+        return resultArrayList;
+    }
+
+
+    @SuppressLint("Range")
+    public List<String> getSort() {
+        db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{"2"});
 
         String filter = "";
 
@@ -519,7 +582,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @SuppressLint("Range")
     public String findCategoryNameByIndex(int categoryId) {
         db = this.getReadableDatabase();
-        String categoryName = "0";
+        String categoryName = "нет";
         Cursor cursor = null;
 
         try {
@@ -637,13 +700,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }finally {
             cursor.close();
         }
-        Collections.sort(modelList, new Comparator<ToDoModel>() {
-            @Override
-            public int compare(ToDoModel task1, ToDoModel task2) {
-                // Сравниваем по статусу
-                return Integer.compare(task1.getStatus(), task2.getStatus());
-            }
-        });
+//        Collections.sort(modelList, new Comparator<ToDoModel>() {
+//            @Override
+//            public int compare(ToDoModel task1, ToDoModel task2) {
+//                // Сравниваем по статусу
+//                return Integer.compare(task1.getStatus(), task2.getStatus());
+//            }
+//        });
 
         if(isSortNeeded) {
             Cursor cursor1 = null;
@@ -685,6 +748,84 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 }
             }
         }
+
+
+
+            Cursor cursor2 = null;
+            try {
+                cursor2 = db.rawQuery("SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?", new String[]{"2"});
+                if (cursor2 != null && cursor2.moveToFirst()) {
+                    String str = cursor2.getString(cursor2.getColumnIndex(SETTING));
+
+
+                    // Ваши дальнейшие действия с переменной str
+//                    Iterator<ToDoModel> iterator = modelList.iterator();
+//
+//                    while (iterator.hasNext()) {
+//                        ToDoModel model = iterator.next();
+//                        Log.e("MyApp", "str.charAt(0): " + str.charAt(0) + ", model.getIsRoutine(): " + model.getIsRoutine());
+//                        if (str.charAt(1) == '0' && model.getIsRoutine() == 0) {
+//                            Log.e("MyApp", "Удаление: " + model);
+//                            iterator.remove();
+//                        }
+//                        else if (str.charAt(1) == '0' && model.getIsRoutine() == 1) {
+//                            iterator.remove();
+//                        }
+//                        else if (str.charAt(3) == '0' && model.getRepeatEndDate().equals("0")) {
+//                            iterator.remove();
+//                        }
+//                        else if (str.charAt(5) == '0' && model.getStatus() == 1) {
+//                            iterator.remove();
+//                        }
+//                        else if (str.charAt(7) == '0' && model.getStatus() == 0) { // невыполенные не нужны
+//                            iterator.remove();
+//                        }
+//                    }
+
+
+                     //Сортировка списка
+                    Collections.sort(modelList, new Comparator<ToDoModel>() {
+                        @Override
+                        public int compare(ToDoModel o1, ToDoModel o2) {
+                            if (str.charAt(1) == '1') {
+                                // Сначала сортируем по статусу (невыполненные задачи идут первыми)
+                                int statusCompare = Integer.compare(o1.getStatus(), o2.getStatus());
+                                if (statusCompare != 0) {
+                                    return statusCompare;
+                                }
+                            } else if (str.charAt(1) == '2') {
+                                int statusCompare = Integer.compare(o1.getStatus(), o2.getStatus());
+                                if (statusCompare != 0) {
+                                    return -statusCompare; // Используем отрицание для изменения порядка сортировки
+                                }
+                            }
+
+                            if (str.charAt(3) == '1') {
+                                // Затем сортируем по приоритету (высший приоритет идет первым)
+                                // Предполагаем, что более низкое числовое значение означает более высокий приоритет
+                                return Integer.compare(o1.getPriority(), o2.getPriority());
+                            } else if (str.charAt(3) == '2') {
+                                return -Integer.compare(o1.getPriority(), o2.getPriority());
+                            }
+                            return Integer.compare(o1.getId(), o2.getId());
+                        }
+                    });
+
+
+
+
+                }
+            } finally {
+                if (cursor2 != null) {
+                    cursor2.close();
+                }
+            }
+
+
+
+
+
+
 
             db.endTransaction();
 

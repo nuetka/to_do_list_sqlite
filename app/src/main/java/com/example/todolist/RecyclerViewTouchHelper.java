@@ -32,15 +32,15 @@ public class RecyclerViewTouchHelper extends ItemTouchHelper.SimpleCallback {
         final int position = viewHolder.getAdapterPosition();
         if (direction == ItemTouchHelper.RIGHT){
             AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
-            builder.setTitle("Delete Task");
-            builder.setMessage("Are You Sure ?");
-            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            builder.setTitle("Удалить задачу");
+            builder.setMessage("Вы уверены ?");
+            builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     adapter.deletTask(position);
                 }
             });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     adapter.notifyItemChanged(position);

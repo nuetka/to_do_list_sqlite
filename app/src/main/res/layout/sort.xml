@@ -45,36 +45,104 @@
     <LinearLayout
         android:id="@+id/lay"
         android:layout_width="match_parent"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/centerPoint"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
         <CheckBox
-            android:id="@+id/one_day"
+            android:id="@+id/u1_1"
             android:layout_width="wrap_content"
             android:textStyle="bold"
             android:layout_height="wrap_content"
-            android:text="one-day tasks"/>
+            android:text="сначала невыполненные"/>
 
         <CheckBox
-            android:id="@+id/forever"
+            android:id="@+id/u1_2"
             android:layout_width="wrap_content"
             android:textStyle="bold"
             android:layout_height="wrap_content"
-            android:text="routine"/>
-
-        <CheckBox
-            android:id="@+id/temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="temporal routine"/>
+            android:text="Сначала выполненные"/>
 
 
     </LinearLayout>
 
+    <View
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="4dp"
+        android:layout_below="@+id/lay"
+        android:layout_marginRight="0dp"
+        android:textStyle="bold"
+        android:layout_toLeftOf="@+id/centerPoint"
+        android:layout_weight="1"
+        android:background="@android:color/black" />
+
+    <LinearLayout
+        android:id="@+id/lay1"
+        android:layout_width="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/lay"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <CheckBox
+            android:id="@+id/u2_1"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:text="сначала высокий приоритет"/>
+
+        <CheckBox
+            android:id="@+id/u2_2"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:text="Сначала низкий приоритет"/>
+
+
+    </LinearLayout>
+
+<!--    <View-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="2dp"-->
+<!--        android:layout_alignParentLeft="true"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:layout_below="@+id/lay1"-->
+<!--        android:layout_marginRight="0dp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:layout_toLeftOf="@+id/centerPoint"-->
+<!--        android:layout_weight="1"-->
+<!--        android:background="@android:color/black" />-->
+
+<!--    <LinearLayout-->
+<!--        android:id="@+id/lay2"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:layout_below="@+id/lay1"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical">-->
+<!--        <CheckBox-->
+<!--            android:id="@+id/u3_1"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:textStyle="bold"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Сначала более продолжительные"/>-->
+
+<!--        <CheckBox-->
+<!--            android:id="@+id/u3_2"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:textStyle="bold"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Сначала менее продолжительные"/>-->
+
+
+<!--    </LinearLayout>-->
+
+
     <LinearLayout
         android:id="@+id/buttons"
         android:layout_width="match_parent"
-        android:layout_below="@+id/lay"
+        android:layout_below="@+id/lay1"
         android:layout_marginTop="9dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal">

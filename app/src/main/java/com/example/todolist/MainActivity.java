@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
+
     TextView dateTextView;
     ImageView calendarImage;
     Calendar selectedDate = Calendar.getInstance();
@@ -90,30 +92,41 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        checkAndRequestPermissions();
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-//                    Uri.parse("package:" + this.getPackageName()));
-//            this.startActivity(intent);
-//        }
+        if((ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)||(!Settings.canDrawOverlays(MainActivity.this))) {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Необходимы разрешения")
+                    .setMessage("Необходимо разрешение на показ поверх других приложений и отправку уведомлений.")
+                    .setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (Build.VERSION.SDK_INT >= 33) {
+                                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivity(intent);
+                                } else {
+
+                                }
+                            }
+
+// For Android 6.0 (M) and above: Checking overlay permission
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                if (!Settings.canDrawOverlays(MainActivity.this)) {
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                                    startActivityForResult(intent, 102); // Use startActivityForResult to handle the result
+                                }
+                                else{
+
+                                }
+                            }
 //
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-            intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
-            startActivity(intent);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-            startActivity(intent);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-            startActivity(intent);
+                        }
+                    })
+                    .show();
         }
 
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -154,10 +167,9 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
                 // Обработка выбора пункта меню
                 int id = item.getItemId();
                 if (id == R.id.menu_item1) {
-                    // Вызов вашего диалогового окна для сортировки
-                    // Например, откройте BottomSheetDialogFragment
-                    Filter filterDialog = Filter.newInstance();
-                    filterDialog.show(getSupportFragmentManager(), Filter.TAG);
+
+                    Sort filterDialog = Sort.newInstance();
+                    filterDialog.show(getSupportFragmentManager(), Sort.TAG);
                     return true;
 //                } else {
                     // Закрываем боковое меню после выбора пункта, кроме "Сортировка"
@@ -430,51 +442,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     private int generateUniqueId() {
         return uniqueId++;
     }
-//    private void checkAndRequestPermissions() {
-//        // Проверяем, есть ли уже разрешения
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED ||
-//                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//
-//                // Если разрешения не предоставлены, показываем Snackbar с объяснением
-//                Snackbar.make(findViewById(android.R.id.content), "Нужны разрешения для работы приложения", Snackbar.LENGTH_INDEFINITE)
-//                        .setAction("OK", new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                // Запрашиваем разрешения
-//                                ActivityCompat.requestPermissions(MainActivity.this,
-//                                        new String[]{
-//                                                Manifest.permission.POST_NOTIFICATIONS,
-//                                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-//                                        },
-//                                        MY_PERMISSIONS_REQUEST);
-//                            }
-//                        }).show();
-//            }
-//        }
-//    }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == MY_PERMISSIONS_REQUEST) {
-//            // Проверяем результаты запроса разрешений
-//            boolean allPermissionsGranted = true;
-//            for (int grantResult : grantResults) {
-//                if (grantResult != PackageManager.PERMISSION_GRANTED) {
-//                    allPermissionsGranted = false;
-//                    break;
-//                }
-//            }
-//
-//            if (allPermissionsGranted) {
-//                // Все разрешения предоставлены, можно продолжать работу приложения
-//            } else {
-//                // Не все разрешения предоставлены
-//                Snackbar.make(findViewById(android.R.id.content), "Не все разрешения предоставлены", Snackbar.LENGTH_SHORT).show();
-//            }
-//        }
-//    }
 }
 
 

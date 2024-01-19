@@ -87,6 +87,8 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
 
         if(item.getIsRoutine()==0){
             holder.repeat.setVisibility(View.GONE);
+        }else {
+            holder.repeat.setVisibility(View.VISIBLE);
         }
 
         String c=null;
@@ -95,10 +97,11 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
 
 
 
-            if ( c.equals("0")) {
-                holder.cat.setText("");
+            if ( c.equals("нет")) {
+                holder.cat.setVisibility(View.GONE);
             } else {
                 holder.cat.setText(c);
+                holder.cat.setVisibility(View.VISIBLE);
             }
 
         if(item.getDuration().equals(":")){
@@ -106,14 +109,51 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
             holder.dur1.setVisibility(View.GONE);
         }else {
          holder.dur1.setText(convertTimeFormat(item.getDuration()));
+            holder.dur.setVisibility(View.VISIBLE);
+            holder.dur1.setVisibility(View.VISIBLE);
         }
 
-        if(item.getPriority()==0){
+        if(item.getPriority()==6){
             holder.priority.setVisibility(View.GONE);
+        }else if(item.getPriority()==5){
+            Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.flagg);
+            drawable = DrawableCompat.wrap(drawable);
+            // Convert hex color string to int and then set the tint
+            holder.priority.setVisibility(View.VISIBLE);
+            int color = Color.parseColor("#0CE305");
+            DrawableCompat.setTint(drawable, color);
+            holder.priority.setCompoundDrawablesWithIntrinsicBounds(null, null, null, drawable);
+
+        }else if(item.getPriority()==4){
+            Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.flagg);
+            drawable = DrawableCompat.wrap(drawable);
+            int color = Color.parseColor("#B9F345");
+            holder.priority.setVisibility(View.VISIBLE);
+            DrawableCompat.setTint(drawable, color);
+            holder.priority.setCompoundDrawablesWithIntrinsicBounds(null, null, null, drawable);
+
+        }else if(item.getPriority()==3){
+            Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.flagg);
+            drawable = DrawableCompat.wrap(drawable);
+            int color = Color.parseColor("#E3DA2F");
+            holder.priority.setVisibility(View.VISIBLE);
+            DrawableCompat.setTint(drawable, color);
+            holder.priority.setCompoundDrawablesWithIntrinsicBounds(null, null, null, drawable);
+
+        }else if(item.getPriority()==2){
+            Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.flagg);
+            drawable = DrawableCompat.wrap(drawable);
+            int color = Color.parseColor("#E3892F");
+            holder.priority.setVisibility(View.VISIBLE);
+            DrawableCompat.setTint(drawable, color);
+            holder.priority.setCompoundDrawablesWithIntrinsicBounds(null, null, null, drawable);
+
         }else if(item.getPriority()==1){
             Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.flagg);
             drawable = DrawableCompat.wrap(drawable);
-            DrawableCompat.setTint(drawable, Color.RED);
+            int color = Color.parseColor("#FF0000");
+            holder.priority.setVisibility(View.VISIBLE);
+            DrawableCompat.setTint(drawable, color);
             holder.priority.setCompoundDrawablesWithIntrinsicBounds(null, null, null, drawable);
 
         }

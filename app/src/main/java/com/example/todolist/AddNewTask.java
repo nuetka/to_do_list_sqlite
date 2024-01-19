@@ -73,14 +73,16 @@ public class AddNewTask extends BottomSheetDialogFragment {
     private int lastCheckedId = -1;
     private int is6Checked = 0;
 
+    CategoryModel selectedCategory;
+
     private DataBaseHelper myDb;
     private OnDateRequestListener dateRequestListener;
 
     private boolean isNewCategoryAdded = false;
     private boolean isMustEdit= false;
 
-    private int priority;//is6Checjes заместо isRpotine
-    private int snoty, enoty;
+    private int priority = 6;//is6Checjes заместо isRpotine
+    private int snoty, enoty, categoryId;
 
 
 
@@ -209,7 +211,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                CategoryModel selectedCategory = (CategoryModel) parent.getItemAtPosition(position);
+                selectedCategory = (CategoryModel) parent.getItemAtPosition(position);
                 if (selectedCategory.getId() == -1) {
                     if (!isNewCategoryAdded) {
                         showAddCategoryDialog();
@@ -442,7 +444,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton1) {
                     radioButton1.setChecked(false);
                     lastCheckedId = -1;
-                    priority=0;
+                    priority=6;
                 } else {
                     lastCheckedId = R.id.radioButton1;
                     priority=1;
@@ -456,7 +458,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton2) {
                     radioButton2.setChecked(false);
                     lastCheckedId = -1;
-                    priority=0;
+                    priority=6;
                 } else {
                     lastCheckedId = R.id.radioButton2;
                     priority=2;
@@ -470,7 +472,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton3) {
                     radioButton3.setChecked(false);
                     lastCheckedId = -1;
-                    priority=0;
+                    priority=6;
                 } else {
                     lastCheckedId = R.id.radioButton3;
                     priority=3;
@@ -485,7 +487,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton4) {
                     radioButton4.setChecked(false);
                     lastCheckedId = -1;
-                    priority=0;
+                    priority=6;
                 } else {
                     lastCheckedId = R.id.radioButton4;
                     priority=4;
@@ -500,7 +502,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (lastCheckedId == R.id.radioButton5) {
                     radioButton5.setChecked(false);
                     lastCheckedId = -1;
-                    priority=0;
+                    priority=6;
                 } else {
                     lastCheckedId = R.id.radioButton5;
                     priority=5;
@@ -681,6 +683,10 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     String dateText;
                     dateText = dateRequestListener.onRequestDate();
                     item.setDate(dateText);
+
+                    item.setCategoryId(myDb.getCategoryIdByName(selectedCategory.getName()));
+
+
 
                     item.setPriority(priority);
                     item.setSnoty(snoty);
