@@ -26,6 +26,7 @@ import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.R;
 import com.example.todolist.Utils.DataBaseHelper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -174,10 +175,44 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
                 }
                 //mList = myDB.getAllTasks();
                 //Collections.reverse(mList);
-                setTasks(mList.stream()
-                        .sorted(Comparator.comparing(ToDoModel::getStatus))
-                        .collect(Collectors.toList()));
+
+
+                List<String> sortt  = myDB.getSort();
+
+                Collections.sort(mList, new Comparator<ToDoModel>() {
+                    @Override
+                    public int compare(ToDoModel o1, ToDoModel o2) {
+                        if (sortt.get(0).equals("1")) {
+                            // Сначала сортируем по статусу (невыполненные задачи идут первыми)
+                            int statusCompare = Integer.compare(o1.getStatus(), o2.getStatus());
+                            if (statusCompare != 0) {
+                                return statusCompare;
+                            }
+                        } else if (sortt.get(0).equals("2")) {
+                            int statusCompare = Integer.compare(o1.getStatus(), o2.getStatus());
+                            if (statusCompare != 0) {
+                                return -statusCompare; // Используем отрицание для изменения порядка сортировки
+                            }
+                        }
+
+                        if (sortt.get(1).equals("1")) {
+                            // Затем сортируем по приоритету (высший приоритет идет первым)
+                            // Предполагаем, что более низкое числовое значение означает более высокий приоритет
+                            return Integer.compare(o1.getPriority(), o2.getPriority());
+                        } else if (sortt.get(1).equals("2")) {
+                            return -Integer.compare(o1.getPriority(), o2.getPriority());
+                        }
+                        return Integer.compare(o1.getId(), o2.getId());
+                    }
+                });
+
+
+                setTasks(mList);
             }
+
+
+
+
         });
     }
 

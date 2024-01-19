@@ -55,12 +55,27 @@ public class Sort extends BottomSheetDialogFragment {
 
 
 
+
+
         u1_1 = view.findViewById(R.id.u1_1);
         u1_2 = view.findViewById(R.id.u1_2);
         u2_1 = view.findViewById(R.id.u2_1);
         u2_2 = view.findViewById(R.id.u2_2);
 //        u3_1 = view.findViewById(R.id.u3_1);
 //        u3_2 = view.findViewById(R.id.u3_2);
+
+        if(sort.get(0).equals("1")){
+            u1_1.setChecked(true);
+        }
+        if(sort.get(0).equals("2")){
+            u1_2.setChecked(true);
+        }
+        if(sort.get(1).equals("1")){
+            u2_1.setChecked(true);
+        }
+        if(sort.get(1).equals("2")){
+            u2_2.setChecked(true);
+        }
 
 
         // Установка u1_1 отмеченным по умолчанию

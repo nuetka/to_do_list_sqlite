@@ -757,32 +757,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 if (cursor2 != null && cursor2.moveToFirst()) {
                     String str = cursor2.getString(cursor2.getColumnIndex(SETTING));
 
-
-                    // Ваши дальнейшие действия с переменной str
-//                    Iterator<ToDoModel> iterator = modelList.iterator();
-//
-//                    while (iterator.hasNext()) {
-//                        ToDoModel model = iterator.next();
-//                        Log.e("MyApp", "str.charAt(0): " + str.charAt(0) + ", model.getIsRoutine(): " + model.getIsRoutine());
-//                        if (str.charAt(1) == '0' && model.getIsRoutine() == 0) {
-//                            Log.e("MyApp", "Удаление: " + model);
-//                            iterator.remove();
-//                        }
-//                        else if (str.charAt(1) == '0' && model.getIsRoutine() == 1) {
-//                            iterator.remove();
-//                        }
-//                        else if (str.charAt(3) == '0' && model.getRepeatEndDate().equals("0")) {
-//                            iterator.remove();
-//                        }
-//                        else if (str.charAt(5) == '0' && model.getStatus() == 1) {
-//                            iterator.remove();
-//                        }
-//                        else if (str.charAt(7) == '0' && model.getStatus() == 0) { // невыполенные не нужны
-//                            iterator.remove();
-//                        }
-//                    }
-
-
                      //Сортировка списка
                     Collections.sort(modelList, new Comparator<ToDoModel>() {
                         @Override

@@ -5,6 +5,7 @@ import static android.app.PendingIntent.getActivity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -175,6 +177,21 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
                     // Закрываем боковое меню после выбора пункта, кроме "Сортировка"
 //                    drawerLayout.closeDrawer(GravityCompat.START);
 //                    return true;
+                } else if (id == R.id.menu_item2) {
+                    // Toggle between light and dark themes
+                    int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                    if (currentNightMode == Configuration.UI_MODE_NIGHT_NO) {
+                        // Switch to dark theme
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    } else {
+                        // Switch to light theme
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    }
+
+                    // Recreate the activity to apply the theme change
+                    recreate();
+
+                    return true;
                 }
 
                 if (id == R.id.menu_item5) {
@@ -272,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         mRecyclerview.setAdapter(adapter);
 
         mList = myDB.getAllTasks(strDate, true);
-        Collections.reverse(mList);
+//        Collections.reverse(mList);
 
 
         adapter.setTasks(mList);
@@ -368,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
 
     public void refresh(){
         mList = myDB.getAllTasks(strDate, true);
-        Collections.reverse(mList);
+//        Collections.reverse(mList);
         adapter.setTasks(mList);
         String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
         if (sis != null && (!sis.equals(""))) {
@@ -388,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     @Override
     public void onDialogClose(DialogInterface dialogInterface) {
         mList = myDB.getAllTasks(strDate, true);
-        Collections.reverse(mList);
+//        Collections.reverse(mList);
         String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
         if (sis != null && (!sis.equals(""))) {
             point.setVisibility(View.VISIBLE);
