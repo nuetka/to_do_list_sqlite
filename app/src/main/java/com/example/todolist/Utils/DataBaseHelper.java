@@ -344,37 +344,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         return count;
     }
-//    public int calculateRoutineTaskCount(ArrayList<String[]> routineTasks, String startDate, String endDate) {
-//        int count = 0;
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//        Calendar calendar = Calendar.getInstance();
-//
-//        for (String[] task : routineTasks) {
-//            String date = task[0];
-//            String red = task[1];
-//            String repeatDays = task[2];
-//
-//            try {
-//                Date taskDate = sdf.parse(date);
-//                Date end = sdf.parse(endDate);
-//                Date repeatEnd = red.equals("0") ? end : sdf.parse(red);
-//
-//                calendar.setTime(taskDate);
-//                while (!calendar.getTime().after(repeatEnd) && !calendar.getTime().after(end)) {
-//                    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1; // Понедельник = 0
-//                    if (repeatDays.charAt(dayOfWeek) == '1') {
-//                        count++;
-//                    }
-//                    calendar.add(Calendar.DAY_OF_MONTH, 1);
-//                }
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        return count;
-//    }
-
 
     @SuppressLint("Range")
     public String getDayBeforTasks() {
@@ -553,10 +522,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             }
         }else{
             // Получите время в миллисекундах для будильника (в данном примере, это время начала задачи)
-            long alarmTimeMillis = getAlarmTimeMillis(model);
+            long alarmTimeMillis1 = getAlarmTimeMillisStart(model);
+            long alarmTimeMillis2 = getAlarmTimeMillisEnd(model);
 
             // Установите будильник
-            setAlarm(model.getId(), alarmTimeMillis, model.getTask());
+            setAlarm(model.getId(), alarmTimeMillis1, alarmTimeMillis2, model.getTask());
         }
     }
 
@@ -605,6 +575,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void deleteTask(int id ){
         db = this.getWritableDatabase();
         db.delete(TABLE_NAME , "ID=?" , new String[]{String.valueOf(id)});
+        cancelAlarm(id);
     }
 
     @SuppressLint("Range")
@@ -968,7 +939,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return task;
     }
 
-    private long getAlarmTimeMillis(ToDoModel model) {
+    private long getAlarmTimeMillisStart(ToDoModel model) {
         // Преобразуйте дату и время из модели в Calendar
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
         try {
@@ -977,10 +948,30 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
 
+                  calendar.set(Calendar.SECOND, 0);
+
+                return calendar.getTimeInMillis();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    private long getAlarmTimeMillisEnd(ToDoModel model) {
+        // Преобразуйте дату и время из модели в Calendar
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+        try {
+            Date date = dateFormat.parse(model.getDate() + " " + model.getEnd());
+            if (date != null) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+
                 // Установите точное время срабатывания в 12:23:00
 //                calendar.set(Calendar.HOUR_OF_DAY, 12);
 //                calendar.set(Calendar.MINUTE, 23);
-                  calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.SECOND, 0);
 
                 return calendar.getTimeInMillis();
             }
@@ -1104,26 +1095,143 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return isSelected;
     }
 
+//    @SuppressLint("ScheduleExactAlarm")
+//    private void setAlarm(int taskId, long alarmTimeMillis, String taskText) {
+//        AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
+//
+//        Intent intent = new Intent(con, AlarmActivity.class);
+//        intent.putExtra("taskId", taskId);
+//        intent.putExtra("task_text", taskText);  // Передаем текст задачи
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//
+//        PendingIntent pendingIntent = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+//
+//        // Используем метод setExact для точного срабатывания будильника
+//        if (alarmManager != null) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+//            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+//            } else {
+//                alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+//            }
+//        }
+//    }
+
+//    @SuppressLint("ScheduleExactAlarm")
+//    private void setAlarm(int taskId, long startAlarmTimeMillis, long endAlarmTimeMillis, String taskText) {
+//        AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
+//
+//        Log.e("AlarmSet", "Start Alarm Time: " + startAlarmTimeMillis);
+//        Log.e("AlarmSet", "End Alarm Time: " + endAlarmTimeMillis);
+//
+//        // Создаем Intent для начала выполнения задачи
+//        Intent startIntent = new Intent(con, AlarmActivity.class);
+//        startIntent.putExtra("taskId", taskId);
+//        startIntent.putExtra("task_text", taskText + " (Start)");  // Передаем текст задачи с пометкой начала выполнения
+//        startIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//
+//        // Создаем PendingIntent для начала выполнения задачи
+//        PendingIntent startPendingIntent = PendingIntent.getActivity(con, taskId, startIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+//
+//        // Создаем Intent для конца выполнения задачи
+//        Intent endIntent = new Intent(con, AlarmActivity.class);
+//        endIntent.putExtra("taskId", (-1)*taskId);
+//        endIntent.putExtra("task_text", taskText + " (End)");  // Передаем текст задачи с пометкой конца выполнения
+//        endIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//
+//        // Создаем PendingIntent для конца выполнения задачи
+//        PendingIntent endPendingIntent = PendingIntent.getActivity(con, (-1)*taskId, endIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+//
+//        // Используем метод setExact для точного срабатывания будильников
+//        if (alarmManager != null) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
+//                if (endAlarmTimeMillis > 0) {
+//                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+//                }
+//            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
+//                if (endAlarmTimeMillis > 0) {
+//                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+//                }
+//            } else {
+//                alarmManager.set(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
+//                if (endAlarmTimeMillis > 0) {
+//                    alarmManager.set(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+//                }
+//            }
+//        }
+//    }
+
     @SuppressLint("ScheduleExactAlarm")
-    private void setAlarm(int taskId, long alarmTimeMillis, String taskText) {
+    private void setAlarm(int taskId, long startAlarmTimeMillis, long endAlarmTimeMillis, String taskText) {
         AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
+        taskId+=1;
 
-        Intent intent = new Intent(con, AlarmActivity.class);
-        intent.putExtra("taskId", taskId);
-        intent.putExtra("task_text", taskText);  // Передаем текст задачи
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Log.e("AlarmSet", "Start Alarm Time: " + startAlarmTimeMillis);
+        Log.e("AlarmSet", "End Alarm Time: " + endAlarmTimeMillis);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(con, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        // Create Intent for starting the task
+        Intent startIntent = new Intent(con, AlarmActivity.class);
+        startIntent.putExtra("taskId", taskId);
+        startIntent.putExtra("task_text", taskText + " (Start)");
+        startIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        // Используем метод setExact для точного срабатывания будильника
+        // Create PendingIntent for starting the task
+        PendingIntent startPendingIntent = PendingIntent.getActivity(con, taskId, startIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        // Use setExact for precise alarm triggering
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
             } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntent);
+                alarmManager.set(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
             }
+        }
+
+        // Check if there is a valid end alarm time
+        if (endAlarmTimeMillis > 0) {
+            // Create Intent for ending the task
+            Intent endIntent = new Intent(con, AlarmActivity.class);
+            endIntent.putExtra("taskId", (100) * taskId);
+            endIntent.putExtra("task_text", taskText + " (End)");
+            endIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            // Create PendingIntent for ending the task
+            PendingIntent endPendingIntent = PendingIntent.getActivity(con, (100) * taskId, endIntent,  PendingIntent.FLAG_IMMUTABLE);
+
+            // Set the end alarm
+            if (alarmManager != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                }
+            }
+        }
+    }
+
+    public void cancelAlarm(int taskId) {
+        AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
+
+        // Интенты должны быть такими же, как и при установке Alarm
+        Intent intent = new Intent(con, AlarmActivity.class);
+
+        // Создаем PendingIntent для начала выполнения задачи
+        PendingIntent startPendingIntent = PendingIntent.getActivity(con, taskId+1, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // Создаем PendingIntent для конца выполнения задачи
+        PendingIntent endPendingIntent = PendingIntent.getActivity(con, (100)*(taskId+1), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // Отменяем оба PendingIntent
+        if (alarmManager != null) {
+            alarmManager.cancel(startPendingIntent);
+            alarmManager.cancel(endPendingIntent);
         }
     }
 

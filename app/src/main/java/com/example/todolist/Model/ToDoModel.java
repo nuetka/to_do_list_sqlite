@@ -21,7 +21,7 @@ public class ToDoModel {
 
     public String getStart() {
         return start;
-    }
+    } //время начала будильника если не задано то там 0
 
     public void setStart(String start) {
         this.start = start;
@@ -29,7 +29,7 @@ public class ToDoModel {
 
     public String getEnd() {
         return end;
-    }
+    }// время окончания будильника. если не задано, то там 0
 
     public void setEnd(String end) {
         this.end = end;
@@ -61,7 +61,7 @@ public class ToDoModel {
 
     public int getSnoty() {
         return snoty;
-    }
+    } //если 1 - то нужно уведомление на начало выполнения задания
 
     public void setSnoty(int snoty) {
         this.snoty = snoty;
@@ -69,7 +69,7 @@ public class ToDoModel {
 
     public int getEnoty() {
         return enoty;
-    }
+    }// если 1 - то нужно уведомление на конец выполнения
 
     public void setEnoty(int enoty) {
         this.enoty = enoty;
@@ -77,7 +77,7 @@ public class ToDoModel {
 
     public int getPriority() {
         return priority;
-    } // 5 цифр. 1-самый топ если 6-я цифра - 0 то не выбрана
+    } // 5 цифр. 1-самый топ если 6-я цифра - 6 то не выбрана
 
     public void setPriority(int priority) {
         this.priority = priority;

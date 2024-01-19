@@ -6,6 +6,8 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -29,29 +31,31 @@ public class AlarmActivity extends AppCompatActivity {
             mediaPlayer.start(); // start playing the sound
         }
 
-
-        // Получение текста задачи из Intent
+        // Getting the task text from Intent
         String taskText = getIntent().getStringExtra("task_text");
 
-        // Настройка TextView
+        // Setting up TextView
         TextView textView = findViewById(R.id.textview);
-        textView.setText(taskText); // Установка текста задачи
+        textView.setText(taskText); // Setting the task text
 
-        // Close the activity after 5 seconds (adjust the delay as needed)
-        new Handler().postDelayed(new Runnable() {
+        // Setting up the OK button
+        Button okButton = findViewById(R.id.okButton);
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                finish();
+            public void onClick(View v) {
+                if (mediaPlayer != null) {
+                    mediaPlayer.stop();
+                    mediaPlayer.release();
+                }
+                finish(); // Close the activity
             }
-        }, 5000);
+        });
     }
 
     @Override
     protected void onDestroy() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-        }
+        // The mediaPlayer is stopped and released in the button's OnClickListener.
         super.onDestroy();
     }
+
 }

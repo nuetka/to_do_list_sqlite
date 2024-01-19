@@ -15,7 +15,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="10:00"
-        android:textColor="@android:color/black"
         android:textSize="14sp"/>
 <!--        //- 12:00 PM-->
     <CheckBox
@@ -31,14 +30,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="-"
-            android:textColor="@android:color/black"
             android:textSize="14sp"/>
         <TextView
             android:id="@+id/end"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="12:00"
-            android:textColor="@android:color/black"
             android:textSize="14sp"/>
         <CheckBox
             android:id="@+id/notificationCheckbox1"

@@ -595,6 +595,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
             isUpdate = true;
             String task = args.getString("task");
 
+
+
+
             if (task.length() > 0 ){
                 mSaveButton.setEnabled(false);
             }
