@@ -243,6 +243,22 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
         Bundle bundle = new Bundle();
         bundle.putInt("id" , item.getId());
         bundle.putString("task" , item.getTask());
+        bundle.putInt("isRoutine", item.getIsRoutine());
+
+        bundle.putString("repeatEndDate" , item.getRepeatEndDate());
+        bundle.putString("repeatDays" , item.getRepeatDays());
+
+        bundle.putString("duration" , item.getDuration());
+
+        bundle.putString("date" , item.getDate());
+        bundle.putString("start" , item.getStart());
+        bundle.putString("end" , item.getEnd());
+
+        bundle.putInt("status" , item.getStatus());
+        bundle.putInt("categoryId" , item.getCategoryId());
+        bundle.putInt("priority" , item.getPriority());
+        bundle.putInt("snoty" , item.getSnoty());
+        bundle.putInt("enoty" , item.getEnoty());
 
         AddNewTask task = new AddNewTask();
         task.setArguments(bundle);

@@ -395,6 +395,14 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         });
 
+        checkBoxMonday = view.findViewById(R.id.checkbox_monday);
+        checkBoxTuesday = view.findViewById(R.id.checkbox_tuesday);
+        checkBoxWednesday = view.findViewById(R.id.checkbox_wednesday);
+        checkBoxThursday = view.findViewById(R.id.checkbox_thursday);
+        checkBoxFriday = view.findViewById(R.id.checkbox_friday);
+        checkBoxSaturday = view.findViewById(R.id.checkbox_saturday);
+        checkBoxSunday = view.findViewById(R.id.checkbox_sunday);
+
 
         final Button btn_from = view.findViewById(R.id.forever);
         final ImageView x3 = view.findViewById(R.id.mIV);
@@ -587,6 +595,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
             }
         });
 
+        EditText editText = view.findViewById(R.id.h);
+        EditText editText1 = view.findViewById(R.id.m);
+        Button myButtonnn = view.findViewById(R.id.forever);
         //уже другое
 
         boolean isUpdate = false;
@@ -594,6 +605,110 @@ public class AddNewTask extends BottomSheetDialogFragment {
         if (((!imagenotemode)&&(args!=null))){
             isUpdate = true;
             String task = args.getString("task");
+            mEditText.setText(task);
+            int pr = args.getInt("priority");
+            if(pr==6){
+                lastCheckedId = -1;
+                priority=6;
+            }else if(pr==1){
+                radioButton1.setChecked(true);
+                lastCheckedId = R.id.radioButton1;
+                priority=1;
+            }else if(pr==2){
+                radioButton2.setChecked(true);
+                lastCheckedId = R.id.radioButton2;
+                priority=2;
+            }else if(pr==3){
+                radioButton3.setChecked(true);
+                lastCheckedId = R.id.radioButton3;
+                priority=3;
+            }else if(pr==4){
+                radioButton4.setChecked(true);
+                lastCheckedId = R.id.radioButton4;
+                priority=4;
+            }else if(pr==5){
+                radioButton5.setChecked(true);
+                lastCheckedId = R.id.radioButton5;
+                priority=5;
+            }
+
+            int rout = args.getInt("isRoutine");
+            if(rout==1) {
+                linearForever.setVisibility(View.VISIBLE);
+                radioButton6.setChecked(true);
+                linearLayout.setVisibility(View.VISIBLE);
+
+                String red = args.getString("repeatEndDate");
+                myButtonnn.setText(red);
+
+                String rd = args.getString("repeatDays");
+
+                if (rd.charAt(0) == '1') {
+                    checkBoxMonday.setChecked(true);
+                }
+                if (rd.charAt(1) == '1') {
+                    checkBoxTuesday.setChecked(true);
+                }
+                if (rd.charAt(2) == '1') {
+                    checkBoxWednesday.setChecked(true);
+                }
+                if (rd.charAt(3) == '1') {
+                    checkBoxThursday.setChecked(true);
+                }
+                if (rd.charAt(4) == '1') {
+                    checkBoxFriday.setChecked(true);
+                }
+                if (rd.charAt(5) == '1') {
+                    checkBoxSaturday.setChecked(true);
+                }
+                if (rd.charAt(6) == '1') {
+                    checkBoxSunday.setChecked(true);
+                }
+
+                int idd = args.getInt("categoryId");
+                setSpinnerSelectionById(idd);
+
+                int s = args.getInt("snoty");
+
+                if(s==1)
+                {
+                    checkBox.setChecked(true);
+                }
+                int e = args.getInt("enoty");
+
+                if (e==1){
+                    checkBox1.setChecked(true);
+                }
+
+                String f = args.getString("start");
+                String f1 = args.getString("end");
+
+                if(!f.equals("0")){
+                    btn.setText(f);
+                }
+
+                if(!f1.equals("0")){
+                    btn1.setText(f1);
+                }
+
+                String d = args.getString("duration");
+
+                if(!d.equals(":")){
+                    String[] parts = d.split(":");
+                    editText.setText(parts[0]);
+                    editText1.setText(parts[1]);
+
+                }
+
+
+
+
+
+
+
+
+            }
+
 
 
 
@@ -627,7 +742,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
         });
         final boolean finalIsUpdate = isUpdate;
 
-        Button myButtonnn = view.findViewById(R.id.forever);
         final Bundle finalArgs = args;
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -692,8 +806,21 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
 
                     item.setPriority(priority);
-                    item.setSnoty(snoty);
-                    item.setEnoty(enoty);
+
+                    if(checkBox.isChecked()){
+                        item.setSnoty(1);
+                    }else{
+                        item.setSnoty(0);
+                    }
+
+                    if(checkBox1.isChecked()){
+                        item.setEnoty(1);
+                    }else{
+                        item.setEnoty(0);
+                    }
+
+
+
 
 
                     String strpat1 = btn.getText().toString();
@@ -728,8 +855,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
 //                        item.setStart("0");
 //                    }
 
-                    EditText editText = view.findViewById(R.id.h);
-                    EditText editText1 = view.findViewById(R.id.m);
+
                     Log.e(TAG, "HOURS!" + editText.getText().toString());
 
                     if (!editText.getText().toString().equals("hours")) {
@@ -772,13 +898,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
             }
         });
 
-             checkBoxMonday = view.findViewById(R.id.checkbox_monday);
-             checkBoxTuesday = view.findViewById(R.id.checkbox_tuesday);
-             checkBoxWednesday = view.findViewById(R.id.checkbox_wednesday);
-             checkBoxThursday = view.findViewById(R.id.checkbox_thursday);
-             checkBoxFriday = view.findViewById(R.id.checkbox_friday);
-             checkBoxSaturday = view.findViewById(R.id.checkbox_saturday);
-             checkBoxSunday = view.findViewById(R.id.checkbox_sunday);
+
 
 
 
@@ -918,6 +1038,15 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    private void setSpinnerSelectionById(int categoryId) {
+        for (int i = 0; i < categories.size(); i++) {
+            if (categories.get(i).getId() == categoryId) {
+                categorySpinner.setSelection(i);
+                break;
+            }
+        }
     }
 
 
