@@ -32,6 +32,8 @@ import com.example.todolist.Model.ToDoModel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -159,6 +161,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 values.clear();
                 values.put(SETTING, "[1,0,0]");
                 db.insert(SETTINGS_TABLE, null, values);
+                values.clear();
+                values.put(SETTING, "0");
+                db.insert(SETTINGS_TABLE, null, values);
     }
 
 
@@ -234,6 +239,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return totalCount;
     }
 
+    public void resetDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Close the existing database
+        if (db != null && db.isOpen()) {
+            db.close();
+        }
+
+        // Delete the database file
+        if (con != null) {
+            con.deleteDatabase(DATABASE_NAME);
+        }
+
+        // Reopen the database
+        db = this.getWritableDatabase();
+
+        // Recreate the database by calling onCreate
+        onCreate(db);
+    }
 
     public int getTotalTasksCountInRange(String startDate, String endDate) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -350,6 +374,38 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 //
 //        return count;
 //    }
+
+
+    @SuppressLint("Range")
+    public String getDayBeforTasks() {
+        db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{"3"});
+
+        String filter = "";
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            filter = cursor.getString(cursor.getColumnIndex(SETTING));
+        }
+
+        cursor.close();
+
+        return filter;
+    }
+
+    public void updateTasksDayBefor(String filter) {
+        db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        // Преобразуйте список в строку в нужном вам формате
+
+        values.put(SETTING, filter);
+
+        db.update(SETTINGS_TABLE, values, "ID=?", new String[]{"3"});
+    }
+
+
 
 
 
@@ -611,12 +667,42 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public List<ToDoModel> getAllTasks(String date, boolean isSortNeeded){
         Log.e(TAG, "Error message   "+date);
 
+        String date_befor = date;
         db = this.getWritableDatabase();
+
+
+
+
+
+
+
+        Cursor cursorr = null;
+        try {
+            cursorr = db.rawQuery("SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?", new String[]{"3"});
+            if (cursorr != null && cursorr.moveToFirst()) {
+                String str = cursorr.getString(cursorr.getColumnIndex(SETTING));
+                if(str.equals("0")){
+                    date_befor=date;
+                }else{
+                    date_befor=getDayBefore(date);
+                }
+
+
+
+
+            }
+        } finally {
+            if (cursorr != null) {
+                cursorr.close();
+            }
+        }
+
+
         Cursor cursor = null;
         List<ToDoModel> modelList = new ArrayList<>();
         db.beginTransaction();
         try {
-            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE DATE = ? OR " + ROUTINE + " = 1", new String[]{date});
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE DATE = ? OR DATE = ? OR " + ROUTINE + " = 1", new String[]{date, date_befor});
 
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
@@ -690,8 +776,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         else{
                             task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         }
-                        if((task.getIsRoutine()==1 && (passed))||task.getIsRoutine()==0) {
-                            modelList.add(task);
+                        if(((task.getIsRoutine()==1 && (passed))||task.getIsRoutine()==0)) {
+                            if(task.getDate().equals(date)||(task.getDate().equals(date_befor)&&task.getStatus()==0)) {
+                                modelList.add(task);
+                            }
                         }
                     } while (cursor.moveToNext());
                 }
@@ -700,13 +788,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }finally {
             cursor.close();
         }
-//        Collections.sort(modelList, new Comparator<ToDoModel>() {
-//            @Override
-//            public int compare(ToDoModel task1, ToDoModel task2) {
-//                // Сравниваем по статусу
-//                return Integer.compare(task1.getStatus(), task2.getStatus());
-//            }
-//        });
 
         if(isSortNeeded) {
             Cursor cursor1 = null;
@@ -785,21 +866,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         }
                     });
 
-
-
-
                 }
             } finally {
                 if (cursor2 != null) {
                     cursor2.close();
                 }
             }
-
-
-
-
-
-
 
             db.endTransaction();
 
@@ -829,6 +901,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
             return false; // Если произошла ошибка парсинга даты, возвращаем false
         }
+    }
+
+    public static String getDayBefore(String dateString) {
+        // Define the formatter based on the expected format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        // Parse the input string to a LocalDate
+        LocalDate date = LocalDate.parse(dateString, formatter);
+
+        // Subtract one day from the date
+        LocalDate dayBefore = date.minusDays(1);
+
+        // Return the formatted date string
+        return dayBefore.format(formatter);
     }
 
     private int compareDates(String date1, String date2) {
@@ -978,27 +1064,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }
 
 
-
-//        String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
-//        Cursor cursor1 = db.rawQuery(query, new String[]{"1"});
-//
-//        String filter = "";
-//
-//
-//        if (cursor1 != null && cursor1.moveToFirst()) {
-//            filter = cursor1.getString(cursor1.getColumnIndex(SETTING));
-//        }
-//
-//        cursor1.close();
-//
-//        for(int i=0; i<16; i++){
-//            if((i%2)==0) {
-//                if (filter.charAt(i + 1) != '0') {
-//                    isSelected = true;
-//                }
-//            }
-//        }
-
         String query = "SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?";
         Cursor cursor1 = db.rawQuery(query, new String[]{"1"});
 
@@ -1038,32 +1103,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         return isSelected;
     }
-
-//    @SuppressLint("Range")
-//    public boolean isAnySelected() {
-//        SQLiteDatabase db = this.getReadableDatabase(); // Изменение здесь
-//
-//        Cursor cursor = null;
-//        boolean isSelected = false;
-//
-//        try {
-//            String query = "SELECT COUNT(*) FROM categories WHERE is_selected = 1";
-//            cursor = db.rawQuery(query, null);
-//
-//            if (cursor != null && cursor.moveToFirst()) {
-//                // Проверяем, есть ли хотя бы одна отмеченная категория
-//                isSelected = cursor.getInt(0) > 0;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (cursor != null) {
-//                cursor.close();
-//            }
-//        }
-//
-//        return isSelected;
-//    }
 
     @SuppressLint("ScheduleExactAlarm")
     private void setAlarm(int taskId, long alarmTimeMillis, String taskText) {

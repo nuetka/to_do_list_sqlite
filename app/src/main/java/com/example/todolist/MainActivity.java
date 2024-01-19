@@ -220,6 +220,73 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
 
                     return true;
                 }
+                if (id == R.id.menu_item3) {
+
+                    String should = myDB.getDayBeforTasks();
+                    if(should.equals("0")) {
+                        // Create an AlertDialog
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("Перенос задач")
+                                .setMessage("Вы хотите включить перенос невыполненных задач? (Перенос осуществляется на один день)")
+                                .setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        myDB.updateTasksDayBefor("1");
+
+                                    }
+                                })
+                                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // User clicked the Cancel button
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }else {
+                        // Create an AlertDialog
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("Перенос задач")
+                                .setMessage("Вы хотите выключить перенос невыполненных задач?")
+                                .setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        myDB.updateTasksDayBefor("0");
+
+                                    }
+                                })
+                                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // User clicked the Cancel button
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
+
+                    return true;
+                }else if (id == R.id.menu_item7) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Полная очистка приложения")
+                            .setMessage("Вы действительно хотите очистить все данные ?")
+                            .setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                   myDB.resetDatabase();
+                                    mList = null;
+                                    adapter.setTasks(mList);
+
+
+                                }
+                            })
+                            .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // User clicked the Cancel button
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+
+                }
 
                 return false;
             }

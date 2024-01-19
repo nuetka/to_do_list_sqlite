@@ -13,10 +13,6 @@
         android:title="Перенос невыполненных задач" />
 
     <item
-        android:id="@+id/menu_item4"
-        android:title="Сменить звук" />
-
-    <item
         android:id="@+id/menu_item5"
         android:title="Анализ производительности" />
 
