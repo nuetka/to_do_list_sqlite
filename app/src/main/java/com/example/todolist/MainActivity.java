@@ -394,7 +394,10 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
             public void onClick(View v) {
                    Filter dialog = Filter.newInstance();
                     dialog.show(getSupportFragmentManager(), Filter.TAG);
+
             }
+
+
         });
 
         ItemTouchHelper itemTouchHelperForBook = new ItemTouchHelper(new RecyclerViewTouchHelper(adapter));
@@ -520,6 +523,8 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
     private int generateUniqueId() {
         return uniqueId++;
     }
+
+
 
 }
 

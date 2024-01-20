@@ -792,10 +792,13 @@ public class Filter extends BottomSheetDialogFragment {
         super.onDismiss(dialog);
 
 
-        Activity activity = getActivity();
-        if (activity instanceof OnDialogCloseListener){
-            ((OnDialogCloseListener)activity).onDialogClose(dialog);
-        }
+//        Activity activity = getActivity();
+//        if (activity instanceof OnDialogCloseListener){
+//            ((OnDialogCloseListener)activity).onDialogClose(dialog);
+//        }
+
+        // Вызовите recreate() при закрытии диалогового окна
+        getActivity().recreate();
     }
 
     private void updateAdapter() {
