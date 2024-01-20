@@ -19,9 +19,9 @@ public class ExcelExporter {
         // Создаем заголовок
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("ID");
-        headerRow.createCell(1).setCellValue("Task Name");
-        headerRow.createCell(2).setCellValue("Description");
-        headerRow.createCell(3).setCellValue("Due Date");
+        headerRow.createCell(1).setCellValue("Description");
+        headerRow.createCell(2).setCellValue("Start");
+        headerRow.createCell(3).setCellValue("End");
         headerRow.createCell(4).setCellValue("Status");
 
         // Заполняем данные
@@ -30,7 +30,9 @@ public class ExcelExporter {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(task.getId());
             row.createCell(1).setCellValue(task.getTask());
-            row.createCell(2).setCellValue(task.getStatus());
+            row.createCell(2).setCellValue(task.getStart());
+            row.createCell(3).setCellValue(task.getEnd());
+            row.createCell(4).setCellValue(task.getStatus());
         }
 
         // Сохраняем в файл

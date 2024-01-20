@@ -204,19 +204,9 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
                 }
 
                 if (id == R.id.menu_item6) {
-                    List<ToDoModel> tasks = mList;
+                    Excel chartDialog = Excel.newInstance();
+                    chartDialog.show(getSupportFragmentManager(), "excel");
 
-                    // Путь к папке "Загрузки"
-                    File downloadsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    String fileName = "ваш_файл.xlsx";
-                    String filePath = new File(downloadsFolder, fileName).getAbsolutePath();
-
-                    // Вызовите метод для сохранения задач в Excel
-                    ExcelExporter.exportTasksToExcel(tasks, filePath);
-
-                    // Отображение уведомления о завершении
-                    Log.d("Notification", "File saved at: " + filePath);
-                    createFileReadyNotification(fileName, "Файл успешно сохранен в папке 'Загрузки'");
 
                     return true;
                 }
@@ -316,12 +306,16 @@ public class MainActivity extends AppCompatActivity implements AddNewTask.OnDate
         point1 = (View) findViewById(R.id.point1);
         if(myDB.isAnySelected()==true){
             point1.setVisibility(View.VISIBLE);
+        }else{
+            point1.setVisibility(View.GONE);
         }
 
 
         String sis = myDB.getNoteTextByDate(dateTextView.getText().toString());
         if (sis != null && (!sis.equals(""))) {
             point.setVisibility(View.VISIBLE);
+        }else{
+            point.setVisibility(View.GONE);
         }
 
         previousButton.setOnClickListener(new View.OnClickListener() {

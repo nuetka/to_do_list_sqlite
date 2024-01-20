@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <!-- Date Selection Dashboard -->
+    <RelativeLayout
+        android:id="@+id/dateSelectionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/startDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Date: "
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/endDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Date: "
+            android:textSize="16sp"
+            android:layout_below="@id/startDateTextView"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/selectStartButton"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
+            android:text="Добавить начало"
+            android:layout_below="@id/endDateTextView"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/selectEndButton"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
+            android:layout_toEndOf="@+id/selectStartButton"
+            android:layout_marginStart="10dp"
+            android:text="Добавить конец"
+            android:layout_below="@id/endDateTextView"
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/selectStartButton"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/okButton"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="ОК"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

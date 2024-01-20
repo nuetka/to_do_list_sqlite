@@ -747,6 +747,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
             @Override
             public void onClick(View v) {
                 String text = mEditText.getText().toString();
+                int nope = 0;
 
                 if(notemode){
                     NoteModel item = new NoteModel();
@@ -865,15 +866,25 @@ public class AddNewTask extends BottomSheetDialogFragment {
                     }
 
 
-                    try {
-                        myDb.insertTask(item);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
+                    if(compareTimes(item.getStart(), item.getEnd())>=0){
+                        nope=1;
+                        Toast.makeText(getContext(), "Не сохранено! Время начало не может быть больше времени окончания", Toast.LENGTH_LONG).show();
+
+                    }
+                    else {
+
+                        try {
+                            myDb.insertTask(item);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
 
                 }
-                dismiss();
+                if(nope==0) {
+                    dismiss();
+                }
 
             }
         });
@@ -996,6 +1007,36 @@ public class AddNewTask extends BottomSheetDialogFragment {
         }
     }
 
+    public static int compareTimes(String time1, String time2) {
+        if(time1.equals("0")||time2.equals("0")){
+            return -1;
+        }
+        String[] parts1 = time1.split(":");
+        String[] parts2 = time2.split(":");
+
+        int minutes1 = Integer.parseInt(parts1[0]);
+        int seconds1 = Integer.parseInt(parts1[1]);
+
+        int minutes2 = Integer.parseInt(parts2[0]);
+        int seconds2 = Integer.parseInt(parts2[1]);
+
+        // Compare minutes
+        if (minutes1 < minutes2) {
+            return -1;
+        } else if (minutes1 > minutes2) {
+            return 1;
+        }
+
+        // If minutes are equal, compare seconds
+        if (seconds1 < seconds2) {
+            return -1;
+        } else if (seconds1 > seconds2) {
+            return 1;
+        }
+
+        // If both minutes and seconds are equal, return 0
+        return 0;
+    }
     private void updateCategorySpinner() {
         categories = myDb.getAllCategories();
 

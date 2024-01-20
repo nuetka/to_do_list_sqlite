@@ -304,6 +304,29 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return totalCount;
     }
 
+    public CategoryModel getCategoryById(int categoryId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CategoryModel categoryModel = null;
+
+        String[] projection = {COLUMN_CATEGORY_ID, COLUMN_CATEGORY_NAME, IS_SELECTED};
+        String selection = COLUMN_CATEGORY_ID + "=?";
+        String[] selectionArgs = {String.valueOf(categoryId)};
+
+        Cursor cursor = db.query(TABLE_CATEGORIES, projection, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID));
+            String name = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME));
+            boolean isSelected = cursor.getInt(cursor.getColumnIndex(IS_SELECTED)) == 1;
+
+            categoryModel = new CategoryModel(id, name, isSelected);
+            cursor.close();
+        }
+
+        return categoryModel;
+    }
+
+
     public int calculateRoutineTaskCount(ArrayList<String[]> routineTasks, String startDate, String endDate) {
         int count = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -526,7 +549,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             long alarmTimeMillis2 = getAlarmTimeMillisEnd(model);
 
             // Установите будильник
-            setAlarm(model.getId(), alarmTimeMillis1, alarmTimeMillis2, model.getTask());
+            setAlarm(model.getId(), alarmTimeMillis1, alarmTimeMillis2, model.getTask(), model.getSnoty(), model.getEnoty());
         }
     }
 
@@ -804,7 +827,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         else if (str.charAt(7) == '0' && model.getStatus() == 0) { // невыполенные не нужны
                             iterator.remove();
                         }
+
+                        else if(!getCategoryById(model.getCategoryId()).isSelected()){
+                            iterator.remove();
+                        }
+
+
                     }
+
+
 
 
                     }
@@ -1197,52 +1228,57 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 //    }
 
     @SuppressLint("ScheduleExactAlarm")
-    private void setAlarm(int taskId, long startAlarmTimeMillis, long endAlarmTimeMillis, String taskText) {
+    private void setAlarm(int taskId, long startAlarmTimeMillis, long endAlarmTimeMillis, String taskText, int snoty, int enoty) {
         AlarmManager alarmManager = (AlarmManager) con.getSystemService(Context.ALARM_SERVICE);
         taskId+=1;
 
         Log.e("AlarmSet", "Start Alarm Time: " + startAlarmTimeMillis);
         Log.e("AlarmSet", "End Alarm Time: " + endAlarmTimeMillis);
 
-        // Create Intent for starting the task
-        Intent startIntent = new Intent(con, AlarmActivity.class);
-        startIntent.putExtra("taskId", taskId);
-        startIntent.putExtra("task_text", taskText + " (Start)");
-        startIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        if(snoty==1) {
 
-        // Create PendingIntent for starting the task
-        PendingIntent startPendingIntent = PendingIntent.getActivity(con, taskId, startIntent, PendingIntent.FLAG_IMMUTABLE);
+            // Create Intent for starting the task
+            Intent startIntent = new Intent(con, AlarmActivity.class);
+            startIntent.putExtra("taskId", taskId);
+            startIntent.putExtra("task_text", taskText + " (Start)");
+            startIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        // Use setExact for precise alarm triggering
-        if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
-            } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
-            }
-        }
+            // Create PendingIntent for starting the task
+            PendingIntent startPendingIntent = PendingIntent.getActivity(con, taskId, startIntent, PendingIntent.FLAG_IMMUTABLE);
 
-        // Check if there is a valid end alarm time
-        if (endAlarmTimeMillis > 0) {
-            // Create Intent for ending the task
-            Intent endIntent = new Intent(con, AlarmActivity.class);
-            endIntent.putExtra("taskId", (100) * taskId);
-            endIntent.putExtra("task_text", taskText + " (End)");
-            endIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            // Create PendingIntent for ending the task
-            PendingIntent endPendingIntent = PendingIntent.getActivity(con, (100) * taskId, endIntent,  PendingIntent.FLAG_IMMUTABLE);
-
-            // Set the end alarm
+            // Use setExact for precise alarm triggering
             if (alarmManager != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
                 } else {
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, startAlarmTimeMillis, startPendingIntent);
+                }
+            }
+        }
+        if(enoty==1) {
+
+            // Check if there is a valid end alarm time
+            if (endAlarmTimeMillis > 0) {
+                // Create Intent for ending the task
+                Intent endIntent = new Intent(con, AlarmActivity.class);
+                endIntent.putExtra("taskId", (100) * taskId);
+                endIntent.putExtra("task_text", taskText + " (End)");
+                endIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                // Create PendingIntent for ending the task
+                PendingIntent endPendingIntent = PendingIntent.getActivity(con, (100) * taskId, endIntent, PendingIntent.FLAG_IMMUTABLE);
+
+                // Set the end alarm
+                if (alarmManager != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                    } else {
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, endAlarmTimeMillis, endPendingIntent);
+                    }
                 }
             }
         }
