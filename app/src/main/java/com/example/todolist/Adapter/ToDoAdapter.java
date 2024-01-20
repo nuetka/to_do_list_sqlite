@@ -165,12 +165,14 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
         holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+
                 if(isChecked){
-                    myDB.updateStatus(item.getId(), 1);
+                    myDB.updateStatus(item, 1);
                     mList.get(position).setStatus(1);
 
                 } else {
-                    myDB.updateStatus(item.getId(), 0);
+                    myDB.updateStatus(item, 0);
                     mList.get(position).setStatus(0);
                 }
                 //mList = myDB.getAllTasks();

@@ -713,9 +713,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
 
 
-            if (task.length() > 0 ){
-                mSaveButton.setEnabled(false);
-            }
+//            if (task.length() > 0 ){
+//                mSaveButton.setEnabled(false);
+//            }
 
         }
         mEditText.addTextChangedListener(new TextWatcher() {
@@ -767,7 +767,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 }else{
 
                 if (finalIsUpdate){
-//                    myDb.updateTask(finalArgs.getInt("id") , text);
+                    myDb.updateTask(finalArgs.getInt("id") , text);
                 }else {
                     ToDoModel item = new ToDoModel();
                     if (is6Checked == 1) {

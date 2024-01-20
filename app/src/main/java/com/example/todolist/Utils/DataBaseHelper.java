@@ -565,11 +565,18 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_NAME , values , "ID=?" , new String[]{String.valueOf(id)});
     }
 
-    public void updateStatus(int id , int status){
+    public void updateStatus(ToDoModel item , int status){
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COL_3 , status);
-        db.update(TABLE_NAME , values , "ID=?" , new String[]{String.valueOf(id)});
+        if(item.getIsRoutine()==0) {
+            values.put(COL_3, status);
+            db.update(TABLE_NAME, values, "ID=?", new String[]{String.valueOf(item.getId())});
+        }else{
+
+            values.put( COL_COMPLETED_4, status);
+            db.update(TABLE_COMPLETED_DATES, values, "ID=? AND "+COL_COMPLETED_3+"=?", new String[]{String.valueOf(item.getId()), String.valueOf(item.getDate())});
+
+        }
     }
 
     public void deleteTask(int id ){
@@ -641,6 +648,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         String date_befor = date;
         db = this.getWritableDatabase();
 
+        String stroka=null;
+
 
 
 
@@ -651,8 +660,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         try {
             cursorr = db.rawQuery("SELECT * FROM " + SETTINGS_TABLE + " WHERE " + SETTING_ID + " = ?", new String[]{"3"});
             if (cursorr != null && cursorr.moveToFirst()) {
-                String str = cursorr.getString(cursorr.getColumnIndex(SETTING));
-                if(str.equals("0")){
+                stroka = cursorr.getString(cursorr.getColumnIndex(SETTING));
+                if(stroka.equals("0")){
                     date_befor=date;
                 }else{
                     date_befor=getDayBefore(date);
@@ -668,6 +677,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             }
         }
 
+        String datete = null;
 
         Cursor cursor = null;
         List<ToDoModel> modelList = new ArrayList<>();
@@ -685,6 +695,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         task.setDate(cursor.getString(cursor.getColumnIndex("DATE")));
                         task.setCategoryId(cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID)));
 
+                        datete=task.getDate();
                         task.setStart((cursor.getString(cursor.getColumnIndex(START))));
                         task.setEnd((cursor.getString(cursor.getColumnIndex(ENDD))));
 
@@ -714,6 +725,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                             if (completedCursor.moveToFirst()) {
                                 // Task exists for this date
                                 task.setStatus(completedCursor.getInt(completedCursor.getColumnIndex(COL_COMPLETED_4)));
+                                task.setDate(completedCursor.getString(completedCursor.getColumnIndex(COL_COMPLETED_3)));
+                                Log.e(TAG, "ЖОПАNEW  "+"|"+task.getStatus());
                                 passed=true;
                             } else {
                                 // Task does not exist for this date, check if it's before the repeat end date
@@ -724,7 +737,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                                     String repeatEndDate = taskCursor.getString(taskCursor.getColumnIndex(RED));
                                     String rd = taskCursor.getString(taskCursor.getColumnIndex(RD));
                                     Log.e(TAG, "Error message   "+repeatEndDate);
-                                    if (repeatEndDate.equals("0") || compareDates(date, repeatEndDate) <= 0) {
+                                    if ((repeatEndDate.equals("0") || compareDates(date, repeatEndDate) <= 0) && compareDates1(datete, date) <= 0)  {
+                                        Log.e(TAG, "ЖОПА  "+repeatEndDate+"|"+date+"|"+repeatEndDate+"|"+datete);
                                         if (isDayOfWeek(date, rd)) {
                                             passed=true;
                                             // Create a new task with status 0
@@ -748,7 +762,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                             task.setStatus(cursor.getInt(cursor.getColumnIndex(COL_3)));
                         }
                         if(((task.getIsRoutine()==1 && (passed))||task.getIsRoutine()==0)) {
-                            if(task.getDate().equals(date)||(task.getDate().equals(date_befor)&&task.getStatus()==0)) {
+                            if(stroka.equals("0") ||    task.getDate().equals(date)&&stroka.equals("1")||(stroka.equals("0")&&task.getDate().equals(date_befor)&&task.getStatus()==0)) {
                                 modelList.add(task);
                             }
                         }
@@ -901,6 +915,24 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        return 0;
+    }
+
+    private static int compareDates1(String date1, String date2) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+
+        try {
+            Date dateObject1 = dateFormat.parse(date1);
+            Date dateObject2 = dateFormat.parse(date2);
+
+            if (dateObject1 != null && dateObject2 != null) {
+                return dateObject1.compareTo(dateObject2);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Return 0 in case of parsing error or null dates
         return 0;
     }
 
